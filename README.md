@@ -94,6 +94,7 @@ Rust 1.99.1; formatting uses the separate pin in `rustfmt-toolchain`.
 
 ```sh
 cargo test --locked
+python3 scripts/test-package-toolchain.py
 python3 scripts/test-package.py
 python3 scripts/test-commit-policy.py
 ./scripts/fmt.sh --check
