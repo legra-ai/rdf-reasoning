@@ -8,6 +8,7 @@
 
 Portable RDF entailment rule definitions, compiled to
 [`datalog-structural-model`](https://github.com/legra-ai/datalog-structural-model).
+
 The name means **reasoning over RDF graphs**. RDF supplies the shared data model
 and baseline semantics; RDFS and OWL add schema and ontology semantics. This
 repository groups reusable RDFS and RDF-based OWL entailment rules and presets
