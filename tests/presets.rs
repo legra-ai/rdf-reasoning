@@ -56,3 +56,54 @@ fn text_and_binary_round_trip() {
     }
     assert!(serde_json::from_str::<Preset>(r#""Rdfs""#).is_err());
 }
+
+#[test]
+fn compiled_program_round_trips_in_both_formats() {
+    for preset in Preset::ALL {
+        let program = preset.program();
+        let json = serde_json::to_string(&program).unwrap();
+        assert_eq!(
+            serde_json::from_str::<datalog_structural_model::Program>(&json).unwrap(),
+            program
+        );
+        let bytes = postcard::to_allocvec(&program).unwrap();
+        assert_eq!(
+            postcard::from_bytes::<datalog_structural_model::Program>(&bytes).unwrap(),
+            program
+        );
+        for excluded in preset.exclusions() {
+            let bytes = postcard::to_allocvec(excluded).unwrap();
+            assert_eq!(
+                postcard::from_bytes::<rdf_reasoning::Exclusion>(&bytes).unwrap(),
+                *excluded
+            );
+        }
+        assert_eq!(preset.name().parse(), Ok(*preset));
+        assert_eq!(
+            serde_json::to_string(preset).unwrap(),
+            format!("\"{}\"", preset.name())
+        );
+    }
+}
+
+#[test]
+fn rejected_selection_preserves_exact_diagnostics() {
+    let error = "OWL2-RL".parse::<Preset>().unwrap_err();
+    assert_eq!(error.input(), "OWL2-RL");
+    let json = serde_json::to_string(&error).unwrap();
+    assert_eq!(
+        serde_json::from_str::<rdf_reasoning::PresetParseError>(&json).unwrap(),
+        error
+    );
+    let bytes = postcard::to_allocvec(&error).unwrap();
+    assert_eq!(
+        postcard::from_bytes::<rdf_reasoning::PresetParseError>(&bytes).unwrap(),
+        error
+    );
+    assert!(
+        serde_json::from_str::<rdf_reasoning::PresetParseError>(
+            r#"{"input":"rdfs", "ignored":true}"#
+        )
+        .is_err()
+    );
+}
