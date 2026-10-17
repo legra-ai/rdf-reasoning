@@ -1,11 +1,23 @@
 # rdf-reasoning
 
+[![Crates.io](https://img.shields.io/crates/v/rdf-reasoning.svg)](https://crates.io/crates/rdf-reasoning)
+[![Documentation](https://docs.rs/rdf-reasoning/badge.svg)](https://docs.rs/rdf-reasoning)
+[![Downloads](https://img.shields.io/crates/d/rdf-reasoning.svg)](https://crates.io/crates/rdf-reasoning)
 [![CI](https://github.com/legra-ai/rdf-reasoning/actions/workflows/ci.yml/badge.svg)](https://github.com/legra-ai/rdf-reasoning/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue)](LICENSE-MIT)
 
 Portable RDF entailment rule definitions, compiled to
 [`datalog-structural-model`](https://github.com/legra-ai/datalog-structural-model).
-The initial implementation is prepared for review; it is not published yet.
+The name means **reasoning over RDF graphs**. RDF supplies the shared data model
+and baseline semantics; RDFS and OWL add schema and ontology semantics. This
+repository groups reusable RDFS and RDF-based OWL entailment rules and presets
+under that common graph foundation, including the planned Horst variants.
+
+Each preset identifies its own rules and exclusions. Keeping them together
+allows consumers to reuse one catalogue while selecting the semantics they
+support. RDF data types live in
+[`rdf-structural-model`](https://github.com/legra-ai/rdf-structural-model), and
+the generic rule representation lives in `datalog-structural-model`.
 
 ```rust
 use rdf_reasoning::Preset;
