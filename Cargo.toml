@@ -1,6 +1,6 @@
 [package]
 name = "rdf-reasoning"
-version = "0.1.0"
+version = "0.2.0"
 description = "Portable RDF reasoning rules and explicit entailment preset contracts"
 authors = ["Jacobus Geluk <jacobus.geluk@dataroad.com>"]
 edition = "2024"
