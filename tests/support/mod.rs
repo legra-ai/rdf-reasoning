@@ -1,4 +1,4 @@
-use datalog_structural_model::{Atom, Literal, Rule, Term};
+use datalog_structural_model::{Atom, BuiltinFilter, Literal, Rule, Term};
 use rdf_reasoning::TRIPLE_RELATION;
 use std::collections::BTreeMap;
 
@@ -31,6 +31,11 @@ impl Fixture {
         let facts: Vec<_> = input.iter().map(|text| Self::triple(text)).collect();
         let mut bindings = vec![BTreeMap::new()];
         for literal in &rule.body {
+            if let Literal::Filter(BuiltinFilter::Ne(left, right)) = literal {
+                bindings
+                    .retain(|binding| Self::value(left, binding) != Self::value(right, binding));
+                continue;
+            }
             let Literal::Positive(atom) = literal else {
                 panic!("non-positive core rule")
             };
@@ -54,6 +59,14 @@ impl Fixture {
                 })
             })
             .collect()
+    }
+
+    fn value<'a>(term: &'a Term, binding: &'a BTreeMap<String, String>) -> &'a str {
+        match term {
+            Term::Variable(variable) => &binding[variable.as_str()],
+            Term::Constant(constant) => constant.as_str(),
+            _ => panic!("non-flat fixture term"),
+        }
     }
 
     fn unify(

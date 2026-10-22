@@ -67,6 +67,14 @@ selection, not a filter that deletes input owl:sameAs statements or prevents
 arbitrary user schema from deriving that predicate through subproperty rules.
 `Preset::exclusions()` records each flavour's omissions.
 
+`Owlrl762RuleId` separately identifies eight flat schema clauses from Python
+owlrl 7.6.2: guarded class/property equivalence and transitivity, plus its
+additional rdf:Property self-equivalence consequence. Their serialized identities
+include the exact reference version. They reuse the standard definitions and add
+explicit exact-term inequality guards; standard presets never select them
+implicitly. This is partial reference-clause coverage, not a full Python
+compatibility preset or a promise about callback/witness order.
+
 `rdfs`, `owl2-rl`, `owl-horst` and vendor names are rejected. Full RDFS, OWL 2
 RL/RDF, precisely defined Horst variants and Python reference closure options
 remain further work. Neither core preset is a GraphDB compatibility claim;
@@ -105,7 +113,8 @@ that its engine implements the required Datalog operations and RDF term domain.
 The generated program's `required_capabilities()` describes language syntax;
 it does not certify those adapter semantics.
 
-Only finite rule metadata is allocated (at most 60 selected clauses). There is no
+Only finite rule metadata is allocated: at most 60 clauses per built-in preset
+and eight separately identified reference clauses. There is no
 graph-sized collection, filesystem access, backend dependency or mutable global.
 The catalogue can serve an asynchronous streaming or disk-backed executor
 without collecting its dataset.
