@@ -172,3 +172,21 @@ this catalogue. Existing presets retain their exact selections and exclusions;
 these entries do not enable a complete OWL or Python compatibility profile.
 Identifiers and checked rules support format-neutral Serde, including JSON and
 Postcard.
+
+### Exact finite numeric values
+
+`ExactNumber` supplies canonical value-equality keys for finite integer,
+decimal, binary64 and rational values. It separates mathematical value from RDF
+term identity and datatype lexical parsing. For example, integer `1`, decimal
+`1.0` and binary64 `1.0` share a key; decimal `0.1` and binary64 `0.1` do not.
+
+A reduced rational coefficient and separate powers of two and five preserve
+exact values without expanding huge decimal exponents. Construction and checked
+JSON/Postcard decoding reject zero denominators, invalid integer operands,
+non-finite binary64 inputs and normalized exponent overflow. Source RDF literal
+spellings remain in the structural model; these keys never replace them.
+
+This is a reusable value primitive. Datatype membership, lexical conversion,
+NaN/infinity behavior, conversion-context effects and versioned Python literal
+semantics remain caller-owned. It adds no rules to existing presets and does not
+establish complete datatype or owlrl compatibility.
