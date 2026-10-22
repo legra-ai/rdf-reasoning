@@ -46,6 +46,16 @@ rules. `Preset::rules()` and `Preset::exclusions()` expose the exact contract.
 `RuleId::definition()` returns each actual checked clause, rather than a label
 that an engine must independently implement.
 
+The complete `RuleId::ALL` catalogue has 60 positive relational clauses. Beyond
+the initial presets, it includes equality reflexivity/symmetry/transitivity and
+replacement, functional/inverse-functional and equivalent properties,
+someValuesFrom/allValuesFrom/hasValue restrictions, equivalent-class membership
+and flat schema consequences. Multi-conclusion standard rules have individually
+identified clauses. Every entry has an independent consequence fixture and
+JSON/Postcard round-trip coverage. These additional entries do not change the
+initial presets or establish complete OWL 2 RL support: lists, cardinalities,
+datatype semantics, axioms and inconsistency checks remain separate work.
+
 `rdfs`, `owl2-rl`, `owl-horst` and vendor names are rejected. Full RDFS, OWL 2
 RL/RDF, precisely defined Horst variants and Python reference closure options
 remain further work. Neither core preset is a GraphDB compatibility claim;
@@ -72,7 +82,9 @@ loading a newer RDF syntax does not enable extra entailment rules.
 Intermediate tuples are generalized: literal subjects and non-IRI predicates
 can participate in derivations. Filtering them out before closure can remove
 valid consequences. Standard RDF output projection is a separate adapter step.
-No `owl:sameAs` expansion or representative compression is implied.
+The initial presets contain no dedicated OWL equality rules. Selecting the
+additional equality clauses requires their exact generalized tuple semantics;
+representative compression is not implied by the model.
 
 Forward and backward execution, graph selection, named-graph scope, result
 destination and consistency policy belong to the caller. The crate neither
@@ -82,7 +94,8 @@ that its engine implements the required Datalog operations and RDF term domain.
 The generated program's `required_capabilities()` describes language syntax;
 it does not certify those adapter semantics.
 
-Only the finite rule catalogue is allocated (at most 18 clauses). There is no
+Only finite rule metadata is allocated (60 catalogue clauses; at most 18 clauses
+in an initial preset). There is no
 graph-sized collection, filesystem access, backend dependency or mutable global.
 The catalogue can serve an asynchronous streaming or disk-backed executor
 without collecting its dataset.
