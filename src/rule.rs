@@ -1,5 +1,7 @@
 //! Finite, independently authored relational rule catalogue.
 
+mod owl;
+
 use datalog_structural_model::{
     Atom, ConstantSymbol, Literal, PredicateSymbol, Rule, Term, VariableSymbol,
 };
@@ -52,9 +54,179 @@ pub enum RuleId {
     PrpInv1,
     /// Reverse inverse property assertions, OWL 2 RL rule prp-inv2.
     PrpInv2,
+    /// Equality reflexivity for an assertion subject.
+    EqRefSubject,
+    /// Equality reflexivity for an assertion predicate.
+    EqRefPredicate,
+    /// Equality reflexivity for an assertion object, including a literal.
+    EqRefObject,
+    /// Equality symmetry.
+    EqSym,
+    /// Equality transitivity.
+    EqTrans,
+    /// Replace an assertion subject using exact equality.
+    EqRepS,
+    /// Replace an assertion predicate using exact equality.
+    EqRepP,
+    /// Replace an assertion object using exact equality.
+    EqRepO,
+    /// Functional properties imply equal objects.
+    PrpFp,
+    /// Inverse-functional properties imply equal subjects.
+    PrpIfp,
+    /// Equivalent properties transfer assertions forward.
+    PrpEqp1,
+    /// Equivalent properties transfer assertions in reverse.
+    PrpEqp2,
+    /// A typed property filler implies someValuesFrom membership.
+    ClsSvf1,
+    /// Any property filler satisfies someValuesFrom Thing.
+    ClsSvf2,
+    /// allValuesFrom membership types a property filler.
+    ClsAvf,
+    /// hasValue membership implies an assertion.
+    ClsHv1,
+    /// An assertion implies hasValue membership.
+    ClsHv2,
+    /// Equivalent classes transfer membership forward.
+    CaxEqc1,
+    /// Equivalent classes transfer membership in reverse.
+    CaxEqc2,
+    /// A declared OWL class is its own subclass.
+    ScmClsSelfSubclass,
+    /// A declared OWL class is equivalent to itself.
+    ScmClsSelfEquivalent,
+    /// A declared OWL class is a subclass of Thing.
+    ScmClsThing,
+    /// Nothing is a subclass of every declared OWL class.
+    ScmClsNothing,
+    /// Class equivalence implies forward subclass inclusion.
+    ScmEqc1Forward,
+    /// Class equivalence implies reverse subclass inclusion.
+    ScmEqc1Reverse,
+    /// Mutual subclass inclusion implies class equivalence.
+    ScmEqc2,
+    /// Property equivalence implies forward subproperty inclusion.
+    ScmEqp1Forward,
+    /// Property equivalence implies reverse subproperty inclusion.
+    ScmEqp1Reverse,
+    /// Mutual subproperty inclusion implies property equivalence.
+    ScmEqp2,
+    /// A property domain propagates along subclass inclusion.
+    ScmDom1,
+    /// A property domain propagates to a subproperty.
+    ScmDom2,
+    /// A property range propagates along subclass inclusion.
+    ScmRng1,
+    /// A property range propagates to a subproperty.
+    ScmRng2,
+    /// hasValue restrictions propagate along subproperty inclusion.
+    ScmHv,
+    /// someValuesFrom restrictions are covariant in their filler.
+    ScmSvf1,
+    /// someValuesFrom restrictions are covariant in their property.
+    ScmSvf2,
+    /// allValuesFrom restrictions are covariant in their filler.
+    ScmAvf1,
+    /// allValuesFrom restrictions are contravariant in their property.
+    ScmAvf2,
+    /// A declared object property is its own subproperty.
+    ScmOpSelfSubproperty,
+    /// A declared object property is equivalent to itself.
+    ScmOpSelfEquivalent,
+    /// A declared datatype property is its own subproperty.
+    ScmDpSelfSubproperty,
+    /// A declared datatype property is equivalent to itself.
+    ScmDpSelfEquivalent,
 }
 
 impl RuleId {
+    /// Whether this clause generates or applies OWL identity equality.
+    ///
+    /// This includes functional/inverse-functional property consequences.
+    /// It does not classify arbitrary assertions whose predicate happens to
+    /// be owl:sameAs, or equivalent-class/property schema relationships.
+    #[must_use]
+    pub const fn has_owl_equality_semantics(self) -> bool {
+        matches!(
+            self,
+            Self::EqRefSubject
+                | Self::EqRefPredicate
+                | Self::EqRefObject
+                | Self::EqSym
+                | Self::EqTrans
+                | Self::EqRepS
+                | Self::EqRepP
+                | Self::EqRepO
+                | Self::PrpFp
+                | Self::PrpIfp
+        )
+    }
+
+    /// Every implemented clause, including clauses outside the initial presets.
+    pub const ALL: &'static [Self] = &[
+        Self::Rdf1,
+        Self::Rdfs2,
+        Self::Rdfs3,
+        Self::Rdfs4a,
+        Self::Rdfs4b,
+        Self::Rdfs5,
+        Self::Rdfs6,
+        Self::Rdfs7,
+        Self::Rdfs8,
+        Self::Rdfs9,
+        Self::Rdfs10,
+        Self::Rdfs11,
+        Self::Rdfs12,
+        Self::Rdfs13,
+        Self::PrpSymp,
+        Self::PrpTrp,
+        Self::PrpInv1,
+        Self::PrpInv2,
+        Self::EqRefSubject,
+        Self::EqRefPredicate,
+        Self::EqRefObject,
+        Self::EqSym,
+        Self::EqTrans,
+        Self::EqRepS,
+        Self::EqRepP,
+        Self::EqRepO,
+        Self::PrpFp,
+        Self::PrpIfp,
+        Self::PrpEqp1,
+        Self::PrpEqp2,
+        Self::ClsSvf1,
+        Self::ClsSvf2,
+        Self::ClsAvf,
+        Self::ClsHv1,
+        Self::ClsHv2,
+        Self::CaxEqc1,
+        Self::CaxEqc2,
+        Self::ScmClsSelfSubclass,
+        Self::ScmClsSelfEquivalent,
+        Self::ScmClsThing,
+        Self::ScmClsNothing,
+        Self::ScmEqc1Forward,
+        Self::ScmEqc1Reverse,
+        Self::ScmEqc2,
+        Self::ScmEqp1Forward,
+        Self::ScmEqp1Reverse,
+        Self::ScmEqp2,
+        Self::ScmDom1,
+        Self::ScmDom2,
+        Self::ScmRng1,
+        Self::ScmRng2,
+        Self::ScmHv,
+        Self::ScmSvf1,
+        Self::ScmSvf2,
+        Self::ScmAvf1,
+        Self::ScmAvf2,
+        Self::ScmOpSelfSubproperty,
+        Self::ScmOpSelfEquivalent,
+        Self::ScmDpSelfSubproperty,
+        Self::ScmDpSelfEquivalent,
+    ];
+
     /// Construct the actual checked Datalog clause for this rule.
     ///
     /// Rule constants are full vocabulary IRIs. Runtime adapters must bind these
@@ -138,21 +310,26 @@ impl RuleId {
                 ["?o", "?p", "?s"],
                 &[["?p", "owl:inverseOf", "?q"], ["?s", "?q", "?o"]],
             ),
+            _ => return self.owl_definition(),
         };
-        // bounded: at most three body atoms, each with exactly three terms.
-        Rule::try_new(
-            Pattern(head).atom(),
-            body.iter()
-                .map(|terms| Literal::Positive(Pattern(*terms).atom()))
-                .collect(),
-        )
-        .expect("the built-in RDF rule catalogue must be safe Datalog")
+        Pattern(head).rule(body)
     }
 }
 
 struct Pattern<'a>([&'a str; 3]);
 
 impl Pattern<'_> {
+    fn rule(self, body: &[[&str; 3]]) -> Rule {
+        // bounded: built-in clauses have at most five three-place body atoms.
+        Rule::try_new(
+            self.atom(),
+            body.iter()
+                .map(|terms| Literal::Positive(Pattern(*terms).atom()))
+                .collect(),
+        )
+        .expect("the built-in RDF rule catalogue must be safe Datalog")
+    }
+
     fn atom(self) -> Atom {
         // bounded: exactly three terms per RDF assertion.
         Atom {

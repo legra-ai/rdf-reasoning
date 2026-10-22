@@ -38,13 +38,42 @@ assert_eq!(program.rules.len(), 18);
 | `none` | No rules or axioms |
 | `rdfs-core` | `rdf1`, `rdfs2`, `rdfs3`, `rdfs4a`, `rdfs4b`, `rdfs5`–`rdfs13` |
 | `rdfs-plus-core` | `rdfs-core` plus `prp-symp`, `prp-trp`, `prp-inv1`, `prp-inv2` |
+| `rdfs-owl2-rl-relational-core` | All 60 positive flat clauses in `RuleId::ALL` |
+| `rdfs-owl2-rl-relational-core-without-owl-equality-rules` | The relational core without its ten dedicated OWL equality clauses |
 
-These are explicitly restricted rule presets. Both core presets omit axiomatic
+These are explicitly restricted rule presets. The two RDFS presets omit axiomatic
 triples, datatype recognition/value reasoning/ill-typed literal checks, automatic
 `rdf:_n` classification, existential simple-entailment checking and all equality
 rules. `Preset::rules()` and `Preset::exclusions()` expose the exact contract.
 `RuleId::definition()` returns each actual checked clause, rather than a label
 that an engine must independently implement.
+
+The complete `RuleId::ALL` catalogue has 60 positive relational clauses. Beyond
+the initial presets, it includes equality reflexivity/symmetry/transitivity and
+replacement, functional/inverse-functional and equivalent properties,
+someValuesFrom/allValuesFrom/hasValue restrictions, equivalent-class membership
+and flat schema consequences. Multi-conclusion standard rules have individually
+identified clauses. Every entry has an independent consequence fixture and
+JSON/Postcard round-trip coverage. These additional entries do not change the
+initial presets or establish complete OWL 2 RL support: lists, cardinalities,
+datatype semantics, axioms and inconsistency checks remain separate work.
+
+The relational presets also omit automatic container-vocabulary seeding and
+simple-entailment checking. The equality-free flavour excludes reflexivity,
+symmetry, transitivity, subject/predicate/object replacement and equality
+generation from functional/inverse-functional properties. It retains ordinary
+term-identity joins and equivalent-class/property schema rules. This is a rule
+selection, not a filter that deletes input owl:sameAs statements or prevents
+arbitrary user schema from deriving that predicate through subproperty rules.
+`Preset::exclusions()` records each flavour's omissions.
+
+`Owlrl762RuleId` separately identifies eight flat schema clauses from Python
+owlrl 7.6.2: guarded class/property equivalence and transitivity, plus its
+additional rdf:Property self-equivalence consequence. Their serialized identities
+include the exact reference version. They reuse the standard definitions and add
+explicit exact-term inequality guards; standard presets never select them
+implicitly. This is partial reference-clause coverage, not a full Python
+compatibility preset or a promise about callback/witness order.
 
 `rdfs`, `owl2-rl`, `owl-horst` and vendor names are rejected. Full RDFS, OWL 2
 RL/RDF, precisely defined Horst variants and Python reference closure options
@@ -72,7 +101,9 @@ loading a newer RDF syntax does not enable extra entailment rules.
 Intermediate tuples are generalized: literal subjects and non-IRI predicates
 can participate in derivations. Filtering them out before closure can remove
 valid consequences. Standard RDF output projection is a separate adapter step.
-No `owl:sameAs` expansion or representative compression is implied.
+The initial presets contain no dedicated OWL equality rules. Selecting the
+additional equality clauses requires their exact generalized tuple semantics;
+representative compression is not implied by the model.
 
 Forward and backward execution, graph selection, named-graph scope, result
 destination and consistency policy belong to the caller. The crate neither
@@ -82,7 +113,8 @@ that its engine implements the required Datalog operations and RDF term domain.
 The generated program's `required_capabilities()` describes language syntax;
 it does not certify those adapter semantics.
 
-Only the finite rule catalogue is allocated (at most 18 clauses). There is no
+Only finite rule metadata is allocated: at most 60 clauses per built-in preset
+and eight separately identified reference clauses. There is no
 graph-sized collection, filesystem access, backend dependency or mutable global.
 The catalogue can serve an asynchronous streaming or disk-backed executor
 without collecting its dataset.
