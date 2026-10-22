@@ -141,6 +141,28 @@ pub enum RuleId {
 }
 
 impl RuleId {
+    /// Whether this clause generates or applies OWL identity equality.
+    ///
+    /// This includes functional/inverse-functional property consequences.
+    /// It does not classify arbitrary assertions whose predicate happens to
+    /// be owl:sameAs, or equivalent-class/property schema relationships.
+    #[must_use]
+    pub const fn has_owl_equality_semantics(self) -> bool {
+        matches!(
+            self,
+            Self::EqRefSubject
+                | Self::EqRefPredicate
+                | Self::EqRefObject
+                | Self::EqSym
+                | Self::EqTrans
+                | Self::EqRepS
+                | Self::EqRepP
+                | Self::EqRepO
+                | Self::PrpFp
+                | Self::PrpIfp
+        )
+    }
+
     /// Every implemented clause, including clauses outside the initial presets.
     pub const ALL: &'static [Self] = &[
         Self::Rdf1,

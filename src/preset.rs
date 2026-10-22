@@ -17,8 +17,14 @@ pub enum Exclusion {
     ContainerVocabularySeeding,
     /// Existential simple-entailment witnesses and query entailment checking.
     SimpleEntailmentChecking,
-    /// No owl:sameAs derivation, reflexivity or replacement.
+    /// Dedicated OWL equality derivation, reflexivity and replacement rules.
     Equality,
+    /// RDF list-dependent intersections, unions, enumerations, chains and keys.
+    ListRules,
+    /// Cardinality and qualified-cardinality restriction rules.
+    CardinalityRules,
+    /// Rules detecting inconsistent assertions or datatype assignments.
+    InconsistencyChecks,
 }
 
 /// An exact, finite ruleset, separate from forward/backward execution strategy.
@@ -34,11 +40,40 @@ pub enum Preset {
     RdfsCore,
     /// RDFS core plus symmetric, transitive and inverse property assertions.
     RdfsPlusCore,
+    /// All sixty implemented RDFS/OWL positive flat relational clauses.
+    RdfsOwl2RlRelationalCore,
+    /// The relational core excluding ten dedicated OWL identity-equality clauses.
+    RdfsOwl2RlRelationalCoreWithoutOwlEqualityRules,
 }
 
 impl Preset {
     /// Every implemented preset.
-    pub const ALL: &'static [Self] = &[Self::None, Self::RdfsCore, Self::RdfsPlusCore];
+    pub const ALL: &'static [Self] = &[
+        Self::None,
+        Self::RdfsCore,
+        Self::RdfsPlusCore,
+        Self::RdfsOwl2RlRelationalCore,
+        Self::RdfsOwl2RlRelationalCoreWithoutOwlEqualityRules,
+    ];
+
+    const WITHOUT_OWL_EQUALITY: [RuleId; 50] = Self::without_owl_equality();
+
+    const fn without_owl_equality() -> [RuleId; 50] {
+        // bounded: filtering sixty built-in rule identifiers at compile time.
+        let mut selected = [Rdf1; 50];
+        let mut input = 0;
+        let mut output = 0;
+        while input < RuleId::ALL.len() {
+            let rule = RuleId::ALL[input];
+            if !rule.has_owl_equality_semantics() {
+                selected[output] = rule;
+                output += 1;
+            }
+            input += 1;
+        }
+        assert!(output == selected.len());
+        selected
+    }
 
     /// Stable, exact selector used by text APIs.
     #[must_use]
@@ -47,6 +82,10 @@ impl Preset {
             Self::None => "none",
             Self::RdfsCore => "rdfs-core",
             Self::RdfsPlusCore => "rdfs-plus-core",
+            Self::RdfsOwl2RlRelationalCore => "rdfs-owl2-rl-relational-core",
+            Self::RdfsOwl2RlRelationalCoreWithoutOwlEqualityRules => {
+                "rdfs-owl2-rl-relational-core-without-owl-equality-rules"
+            }
         }
     }
 
@@ -63,6 +102,8 @@ impl Preset {
                 Rdf1, Rdfs2, Rdfs3, Rdfs4a, Rdfs4b, Rdfs5, Rdfs6, Rdfs7, Rdfs8, Rdfs9, Rdfs10,
                 Rdfs11, Rdfs12, Rdfs13, PrpSymp, PrpTrp, PrpInv1, PrpInv2,
             ],
+            Self::RdfsOwl2RlRelationalCore => RuleId::ALL,
+            Self::RdfsOwl2RlRelationalCoreWithoutOwlEqualityRules => &Self::WITHOUT_OWL_EQUALITY,
         }
     }
 
@@ -80,6 +121,25 @@ impl Preset {
                 Exclusion::SimpleEntailmentChecking,
                 Exclusion::Equality,
             ],
+            Self::RdfsOwl2RlRelationalCore => &[
+                Exclusion::AxiomaticTriples,
+                Exclusion::DatatypeSemantics,
+                Exclusion::ContainerVocabularySeeding,
+                Exclusion::SimpleEntailmentChecking,
+                Exclusion::ListRules,
+                Exclusion::CardinalityRules,
+                Exclusion::InconsistencyChecks,
+            ],
+            Self::RdfsOwl2RlRelationalCoreWithoutOwlEqualityRules => &[
+                Exclusion::AxiomaticTriples,
+                Exclusion::DatatypeSemantics,
+                Exclusion::ContainerVocabularySeeding,
+                Exclusion::SimpleEntailmentChecking,
+                Exclusion::Equality,
+                Exclusion::ListRules,
+                Exclusion::CardinalityRules,
+                Exclusion::InconsistencyChecks,
+            ],
         }
     }
 
@@ -88,7 +148,7 @@ impl Preset {
     /// No graph is read or materialized. Callers supply execution and graph scope.
     #[must_use]
     pub fn program(self) -> Program {
-        // bounded: the largest preset has eighteen rules, independent of graph size.
+        // bounded: the largest preset has sixty rules, independent of graph size.
         Program::try_new(self.rules().iter().map(|rule| rule.definition()).collect())
             .expect("the built-in RDF preset catalogue must be safe Datalog")
     }
@@ -123,6 +183,10 @@ impl FromStr for Preset {
             "none" => Ok(Self::None),
             "rdfs-core" => Ok(Self::RdfsCore),
             "rdfs-plus-core" => Ok(Self::RdfsPlusCore),
+            "rdfs-owl2-rl-relational-core" => Ok(Self::RdfsOwl2RlRelationalCore),
+            "rdfs-owl2-rl-relational-core-without-owl-equality-rules" => {
+                Ok(Self::RdfsOwl2RlRelationalCoreWithoutOwlEqualityRules)
+            }
             _ => Err(PresetParseError {
                 input: input.to_owned(),
             }),

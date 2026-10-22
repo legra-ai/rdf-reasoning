@@ -26,5 +26,12 @@ entries alone do not enable full RDFS, OWL 2 RL, Horst or Python compatibility
 names. Complete contracts still require lists, cardinalities, datatypes, axioms,
 inconsistency checks and independent conformance evidence.
 
+Provide explicit restricted relational-core presets with all sixty clauses and
+with the ten dedicated OWL equality clauses omitted. The latter excludes both
+equality generation from property characteristics and equality application;
+it does not filter assertions or remove ordinary identity-based Datalog joins.
+Expose exact rules and exclusions, preserve the selection through Serde, and
+reject full-profile or reference-version names until their semantics exist.
+
 Normative semantic source: OWL 2 Profiles, second edition, section 4.3,
 https://www.w3.org/TR/owl2-profiles/#Reasoning_in_OWL_2_RL_and_RDF_Graphs.

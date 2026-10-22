@@ -38,8 +38,10 @@ assert_eq!(program.rules.len(), 18);
 | `none` | No rules or axioms |
 | `rdfs-core` | `rdf1`, `rdfs2`, `rdfs3`, `rdfs4a`, `rdfs4b`, `rdfs5`–`rdfs13` |
 | `rdfs-plus-core` | `rdfs-core` plus `prp-symp`, `prp-trp`, `prp-inv1`, `prp-inv2` |
+| `rdfs-owl2-rl-relational-core` | All 60 positive flat clauses in `RuleId::ALL` |
+| `rdfs-owl2-rl-relational-core-without-owl-equality-rules` | The relational core without its ten dedicated OWL equality clauses |
 
-These are explicitly restricted rule presets. Both core presets omit axiomatic
+These are explicitly restricted rule presets. The two RDFS presets omit axiomatic
 triples, datatype recognition/value reasoning/ill-typed literal checks, automatic
 `rdf:_n` classification, existential simple-entailment checking and all equality
 rules. `Preset::rules()` and `Preset::exclusions()` expose the exact contract.
@@ -55,6 +57,15 @@ identified clauses. Every entry has an independent consequence fixture and
 JSON/Postcard round-trip coverage. These additional entries do not change the
 initial presets or establish complete OWL 2 RL support: lists, cardinalities,
 datatype semantics, axioms and inconsistency checks remain separate work.
+
+The relational presets also omit automatic container-vocabulary seeding and
+simple-entailment checking. The equality-free flavour excludes reflexivity,
+symmetry, transitivity, subject/predicate/object replacement and equality
+generation from functional/inverse-functional properties. It retains ordinary
+term-identity joins and equivalent-class/property schema rules. This is a rule
+selection, not a filter that deletes input owl:sameAs statements or prevents
+arbitrary user schema from deriving that predicate through subproperty rules.
+`Preset::exclusions()` records each flavour's omissions.
 
 `rdfs`, `owl2-rl`, `owl-horst` and vendor names are rejected. Full RDFS, OWL 2
 RL/RDF, precisely defined Horst variants and Python reference closure options
@@ -94,8 +105,7 @@ that its engine implements the required Datalog operations and RDF term domain.
 The generated program's `required_capabilities()` describes language syntax;
 it does not certify those adapter semantics.
 
-Only finite rule metadata is allocated (60 catalogue clauses; at most 18 clauses
-in an initial preset). There is no
+Only finite rule metadata is allocated (at most 60 selected clauses). There is no
 graph-sized collection, filesystem access, backend dependency or mutable global.
 The catalogue can serve an asynchronous streaming or disk-backed executor
 without collecting its dataset.
