@@ -154,3 +154,21 @@ must be verified separately during bootstrap.
 ## License
 
 Dual-licensed under [MIT](LICENSE-MIT) or [Apache-2.0](LICENSE-APACHE), at your option.
+
+### Positive list clauses
+
+`ListRuleId::ALL` supplies two recursive auxiliary clauses defining
+`RDF_LIST_MEMBER_RELATION(list_cell, member)` and five positive OWL consequences:
+`cls-int2`, `cls-uni`, `cls-oo`, `scm-int` and `scm-uni`. Membership follows zero
+or more `rdf:rest` edges then one `rdf:first` edge. It is a reachable-member
+relation, not a well-formed-list validator; dangling, branching and cyclic
+structures retain exactly that relational meaning. Adapters may separately
+reject malformed lists under an explicit execution contract.
+
+Callers must implement both membership clauses or provide the same indexed
+relation. The crate does not store facts or execute a fixed point. Intersection
+recognition, property chains, keys, and all other list conditions remain outside
+this catalogue. Existing presets retain their exact selections and exclusions;
+these entries do not enable a complete OWL or Python compatibility profile.
+Identifiers and checked rules support format-neutral Serde, including JSON and
+Postcard.
