@@ -316,7 +316,7 @@ impl RuleId {
     }
 }
 
-struct Pattern<'a>([&'a str; 3]);
+pub(super) struct Pattern<'a>(pub(super) [&'a str; 3]);
 
 impl Pattern<'_> {
     fn rule(self, body: &[[&str; 3]]) -> Rule {
@@ -330,7 +330,7 @@ impl Pattern<'_> {
         .expect("the built-in RDF rule catalogue must be safe Datalog")
     }
 
-    fn atom(self) -> Atom {
+    pub(super) fn atom(self) -> Atom {
         // bounded: exactly three terms per RDF assertion.
         Atom {
             predicate: PredicateSymbol::new(TRIPLE_RELATION),
@@ -338,7 +338,7 @@ impl Pattern<'_> {
         }
     }
 
-    fn term(text: &str) -> Term {
+    pub(super) fn term(text: &str) -> Term {
         if let Some(variable) = text.strip_prefix('?') {
             return Term::Variable(VariableSymbol::new(variable));
         }
