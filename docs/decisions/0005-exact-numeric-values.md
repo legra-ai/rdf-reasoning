@@ -35,3 +35,7 @@ In particular, OWL 2 syntax §4.2 keeps float, double and decimal value spaces
 disjoint. Standard consumers must tag mathematical keys by that value space;
 Python-reference RDFS may intentionally compare their cached numeric values.
 Do not expose one of those policies under the other's complete-profile name.
+
+Signed zero is another such distinction: this mathematical key normalizes both
+zeros, while OWL 2 floating-point value identity can distinguish them. Value
+space tagging alone is not a complete OWL datatype identity implementation.

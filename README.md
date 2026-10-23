@@ -203,3 +203,8 @@ keeps `xsd:float`, `xsd:double` and `xsd:decimal` value spaces disjoint. A stand
 OWL consumer must include that value-space identity in its keys. A versioned
 Python-reference consumer may intentionally use different comparison semantics;
 `ExactNumber` alone does not choose between these contracts.
+
+Signed zeros also share this mathematical key. OWL 2 floating-point value
+identity can distinguish them; consumers must preserve that distinction in
+addition to the datatype value-space tag. Mathematical comparison, datatype
+value identity and exact RDF term identity are separate operations.
