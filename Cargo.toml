@@ -15,6 +15,7 @@ build = "build.rs"
 include = ["Cargo.toml", "build.rs", "README.md", "LICENSE-APACHE", "LICENSE-MIT", "src/**/*.rs", "tests/**/*.rs"]
 
 [dependencies]
+num-bigint = "0.5.1"
 datalog-structural-model = "=1.0.0"
 serde = { version = "1", features = ["derive"] }
 

@@ -172,3 +172,39 @@ this catalogue. Existing presets retain their exact selections and exclusions;
 these entries do not enable a complete OWL or Python compatibility profile.
 Identifiers and checked rules support format-neutral Serde, including JSON and
 Postcard.
+
+### Exact finite numeric values
+
+`ExactNumber` supplies canonical value-equality keys for finite integer,
+decimal, binary64 and rational values. It separates mathematical value from RDF
+term identity and datatype lexical parsing. For example, integer `1`, decimal
+`1.0` and binary64 `1.0` share a key; decimal `0.1` and binary64 `0.1` do not.
+
+A reduced rational coefficient and separate powers of two and five preserve
+exact values without expanding huge decimal exponents. Construction and checked
+JSON/Postcard decoding reject zero denominators, invalid integer operands,
+non-finite binary64 inputs and normalized exponent overflow. Source RDF literal
+spellings remain in the structural model; these keys never replace them.
+
+This is a reusable value primitive. Datatype membership, lexical conversion,
+NaN/infinity behavior, conversion-context effects and versioned Python literal
+semantics remain caller-owned. It adds no rules to existing presets and does not
+establish complete datatype or owlrl compatibility.
+
+`LiteralRuleId::RdfsValueSubstitution` shares the positive substitution clause
+itself. Its binary `LITERAL_VALUE_RELATION(literal, value_class)` is supplied by
+the adapter under an explicit interpretation contract. The clause preserves
+subject, predicate and exact replacement-term identities. Supplying keys does
+not establish datatype completeness, cached Python-value fidelity, non-finite
+comparison behavior or arbitrary custom Python equality support.
+
+OWL 2's [floating-point datatype map](https://www.w3.org/TR/owl2-syntax/#Floating-Point_Numbers)
+keeps `xsd:float`, `xsd:double` and `xsd:decimal` value spaces disjoint. A standard
+OWL consumer must include that value-space identity in its keys. A versioned
+Python-reference consumer may intentionally use different comparison semantics;
+`ExactNumber` alone does not choose between these contracts.
+
+Signed zeros also share this mathematical key. OWL 2 floating-point value
+identity can distinguish them; consumers must preserve that distinction in
+addition to the datatype value-space tag. Mathematical comparison, datatype
+value identity and exact RDF term identity are separate operations.
