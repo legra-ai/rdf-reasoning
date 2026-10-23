@@ -190,3 +190,16 @@ This is a reusable value primitive. Datatype membership, lexical conversion,
 NaN/infinity behavior, conversion-context effects and versioned Python literal
 semantics remain caller-owned. It adds no rules to existing presets and does not
 establish complete datatype or owlrl compatibility.
+
+`LiteralRuleId::RdfsValueSubstitution` shares the positive substitution clause
+itself. Its binary `LITERAL_VALUE_RELATION(literal, value_class)` is supplied by
+the adapter under an explicit interpretation contract. The clause preserves
+subject, predicate and exact replacement-term identities. Supplying keys does
+not establish datatype completeness, cached Python-value fidelity, non-finite
+comparison behavior or arbitrary custom Python equality support.
+
+OWL 2's [floating-point datatype map](https://www.w3.org/TR/owl2-syntax/#Floating-Point_Numbers)
+keeps `xsd:float`, `xsd:double` and `xsd:decimal` value spaces disjoint. A standard
+OWL consumer must include that value-space identity in its keys. A versioned
+Python-reference consumer may intentionally use different comparison semantics;
+`ExactNumber` alone does not choose between these contracts.

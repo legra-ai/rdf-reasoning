@@ -23,3 +23,15 @@ Serde uses checked string integer operands and signed exponent fields in both
 text and binary formats. Decoding calls the same normalization as constructors.
 Source RDF literal lexical identity remains unchanged. Existing preset rules,
 exclusions and complete-profile rejection remain unchanged.
+
+LiteralRuleId separately supplies the positive object-substitution clause over
+an explicit binary value-class relation. Adapters own class interpretation and
+must reject unsupported relations instead of ignoring them. A key relation is
+not a claim that arbitrary Python equality is transitive or reflexive, nor a
+substitute for context-dependent errors and special values. Keep such behavior
+explicitly versioned and outside the generic numeric key.
+
+In particular, OWL 2 syntax §4.2 keeps float, double and decimal value spaces
+disjoint. Standard consumers must tag mathematical keys by that value space;
+Python-reference RDFS may intentionally compare their cached numeric values.
+Do not expose one of those policies under the other's complete-profile name.
