@@ -2,14 +2,46 @@
 
 import importlib.util
 import io
+import os
 import pathlib
 import subprocess
 import tarfile
 import unittest
+import tempfile
 from unittest.mock import patch
 
 
 class PackageToolchainTests(unittest.TestCase):
+    def test_hook_installation_uses_package_root_outside_working_directory(self):
+        root = pathlib.Path(__file__).resolve().parents[1]
+        with tempfile.TemporaryDirectory() as directory:
+            temporary = pathlib.Path(directory)
+            stub = temporary / "rhusky.rs"
+            stub.write_text('''
+pub struct Rhusky;
+impl Rhusky {
+    pub fn new() -> Self { Self }
+    pub fn hooks_dir(self, _: &str) -> Self { self }
+    pub fn skip_in_env(self, _: &str) -> Self { self }
+    pub fn with_default_hooks(self) -> Self { self }
+    pub fn install_from_build_script(&self, root: impl AsRef<std::path::Path>)
+        -> std::io::Result<()> {
+        assert_eq!(root.as_ref(), std::path::Path::new(env!("CARGO_MANIFEST_DIR")));
+        assert_ne!(root.as_ref(), std::env::current_dir()?.as_path());
+        Ok(())
+    }
+}
+''')
+            environment = dict(os.environ, CARGO_MANIFEST_DIR=str(root))
+            library = temporary / "librhusky.rlib"
+            subprocess.run(["rustc", "--crate-name", "rhusky", "--crate-type", "rlib",
+                            str(stub), "-o", str(library)], env=environment, check=True)
+            binary = temporary / ("build-hook.exe" if os.name == "nt" else "build-hook")
+            subprocess.run(["rustc", "--edition=2024", str(root / "build.rs"),
+                            "--extern", f"rhusky={library}", "-o", str(binary)],
+                           env=environment, check=True)
+            subprocess.run([str(binary)], cwd=temporary, check=True)
+
     def test_extracted_archive_retains_active_toolchain(self):
         source = pathlib.Path(__file__).with_name("test-package.py")
         spec = importlib.util.spec_from_file_location("package_validation", source)
