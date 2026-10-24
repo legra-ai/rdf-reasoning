@@ -49,9 +49,9 @@ dependencies = [
 
 [[package]]
 name = "datalog-structural-model"
-version = "1.0.0"
+version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3044a7dd3f85df97b7032b9e0a98b6a90ad9789674860e21ce1c1f9402008c0a"
+checksum = "d56cbba37d44c76f41589878f9a4a86b85f52e8c6f3523ecaf085694fcd870ff"
 dependencies = [
  "rhusky 0.0.6",
  "rustc-hash",
