@@ -208,3 +208,11 @@ Signed zeros also share this mathematical key. OWL 2 floating-point value
 identity can distinguish them; consumers must preserve that distinction in
 addition to the datatype value-space tag. Mathematical comparison, datatype
 value identity and exact RDF term identity are separate operations.
+
+## Finite standard numeric identity
+
+`OwlFiniteNumericValue` separates decimal, float and double identities and retains
+floating signed zeros. `ExactNumber` remains a mathematical compatibility key.
+The new primitive supports checked JSON/Postcard transport and explicitly rejects
+non-finite inputs; it does not enable datatype rules or complete presets.
+See [the finite identity decision](docs/decisions/0006-finite-owl-numeric-identity.md).

@@ -47,6 +47,10 @@ impl fmt::Display for ExactNumberError {
 impl std::error::Error for ExactNumberError {}
 
 impl ExactNumber {
+    pub(crate) fn is_finite_decimal(&self) -> bool {
+        self.denominator == BigUint::from(1u8)
+    }
+
     /// Construct an exact integer, preserving its mathematical value.
     ///
     /// # Errors
