@@ -51,6 +51,10 @@ impl ExactNumber {
         self.denominator == BigUint::from(1u8)
     }
 
+    pub(crate) fn is_integer(&self) -> bool {
+        self.is_finite_decimal() && self.power_two >= 0 && self.power_five >= 0
+    }
+
     /// Construct an exact integer, preserving its mathematical value.
     ///
     /// # Errors
