@@ -1,5 +1,5 @@
 //! Finite fixture interpreter for auxiliary relation assertions.
-use datalog_structural_model::{Literal, Rule, Term};
+use datalog_structural_model::{BuiltinFilter, Literal, Rule, Term};
 use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
@@ -23,8 +23,14 @@ pub fn closure(rules: &[Rule], input: &[Fact]) -> BTreeSet<Fact> {
         for rule in rules {
             let mut bindings = vec![BTreeMap::<String, String>::new()];
             for literal in &rule.body {
-                let Literal::Positive(atom) = literal else {
-                    panic!("positive fixture clause")
+                let atom = match literal {
+                    Literal::Positive(atom) => atom,
+                    Literal::Filter(BuiltinFilter::Ne(left, right)) => {
+                        bindings
+                            .retain(|binding| resolve(left, binding) != resolve(right, binding));
+                        continue;
+                    }
+                    _ => panic!("unsupported fixture clause"),
                 };
                 let mut next = Vec::new();
                 for binding in bindings {
@@ -82,5 +88,15 @@ pub fn closure(rules: &[Rule], input: &[Fact]) -> BTreeSet<Fact> {
         if before == facts.len() {
             return facts;
         }
+    }
+}
+
+fn resolve<'a>(term: &'a Term, binding: &'a BTreeMap<String, String>) -> &'a str {
+    match term {
+        Term::Variable(variable) => binding
+            .get(variable.as_str())
+            .expect("bound filter operand"),
+        Term::Constant(constant) => constant.as_str(),
+        _ => panic!("flat fixture filter"),
     }
 }
