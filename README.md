@@ -216,3 +216,24 @@ floating signed zeros. `ExactNumber` remains a mathematical compatibility key.
 The new primitive supports checked JSON/Postcard transport and explicitly rejects
 non-finite inputs; it does not enable datatype rules or complete presets.
 See [the finite identity decision](docs/decisions/0006-finite-owl-numeric-identity.md).
+
+## Numeric identity and restricted membership
+
+`OwlNumericValue` represents decimal, float and double identities, including
+floating infinities and one NaN identity per floating space. Constructors
+canonicalize NaN payload/sign/signaling variations. Signed zeros remain distinct;
+`Eq` and `Hash` describe identity, not arithmetic equality or facet comparison.
+Checked JSON/Postcard decoding rejects noncanonical NaN payloads and non-decimal
+rational payloads. `OwlFiniteNumericValue` retains its finite-only contract.
+
+`is_member_of(OwlNumericDatatype)` supports exactly decimal, integer, rational,
+real, float and double membership for those represented values. Decimal values
+are rational and real; integer membership requires an integral decimal. Float
+and double are disjoint from each other and from real, including their special
+values. There is no numeric coercion. Huge decimal exponents stay compact.
+
+This is not the complete OWL datatype map: non-decimal rationals and irrational
+reals are not constructed, derived integer ranges and other datatypes are not
+selectors, and lexical parsing, facets and datatype rule execution remain
+separate work. Existing presets and Python compatibility keys are unaffected.
+See [the numeric domain decision](docs/decisions/0007-numeric-domain-membership.md).
