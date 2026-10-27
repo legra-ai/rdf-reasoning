@@ -237,3 +237,35 @@ reals are not constructed, derived integer ranges and other datatypes are not
 selectors, and lexical parsing, facets and datatype rule execution remain
 separate work. Existing presets and Python compatibility keys are unaffected.
 See [the numeric domain decision](docs/decisions/0007-numeric-domain-membership.md).
+
+## Numeric dt-eq and dt-diff clauses
+
+`OwlNumericRuleId` provides checked `numeric/dt-eq` and `numeric/dt-diff`
+clauses. These explicitly restrict the OWL-RL datatype rules to interpreted
+`OwlNumericValue` decimal/float/double values, including infinities and NaN.
+They do not select new rules in any existing preset.
+
+Adapters supply `OWL_NUMERIC_VALUE_RELATION(literal, numeric_value_key)` with
+one collision-free key for each interpreted numeric literal in the selected
+scope. Key identity agrees exactly with `OwlNumericValue`; source literal
+identity remains exact and separate. Python mathematical compatibility keys
+must not be bound here. Lexical validation precedes interpretation, and unknown
+values or unsupported operations must fail rather than receive guessed keys.
+
+`numeric/dt-eq` joins a shared key to emit `owl:sameAs`. `numeric/dt-diff`
+joins two keys and uses structural `Ne` on those keys to emit
+`owl:differentFrom`. Both produce ordered pairs; equal-value self-pairs remain
+present, including NaN. Distinct lexical forms can share a value, while signed
+floating zeros and disjoint numeric spaces denote different values.
+
+Literal-subject heads are generalized tuples: preserve them during reasoning,
+then apply standard RDF projection separately. Forward/backward execution,
+indexed relation binding and graph scope remain caller-owned. An executor can
+stream or probe the relation; the library never collects graph data or builds
+a graph-sized pair table. Consequences can still be quadratic in the selected
+literal domain; resource policy must not silently truncate them.
+
+This is a restricted catalogue, not complete datatype conformance. Lexical
+parsing, other literal domains, derived datatype ranges, facets, inconsistency
+rules and consumer adoption remain separate work. Complete profile names remain
+rejected. See [the numeric clause decision](docs/decisions/0008-numeric-identity-clauses.md).
