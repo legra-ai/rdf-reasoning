@@ -222,12 +222,12 @@ checksum = "f8dcc9c7d52a811697d2151c701e0d08956f92b0e24136cf4cf27b57a6a0d9bf"
 
 [[package]]
 name = "rdf-reasoning"
-version = "2.3.0"
+version = "2.3.1"
 dependencies = [
  "datalog-structural-model",
  "num-bigint",
  "postcard",
- "rhusky 2.0.1",
+ "rhusky 2.0.2",
  "serde",
  "serde_json",
 ]
@@ -240,9 +240,9 @@ checksum = "bd58f5095f1eaaee85441008005db48773976f5bb85bedd35d6cf3f04db8ec4b"
 
 [[package]]
 name = "rhusky"
-version = "2.0.1"
+version = "2.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9548a7a5c007925ce1965a8a0bbecb34430ab255154c050c7275aedd19788c79"
+checksum = "569164e03f099594e9a40da83e9095d9f88b2a33bc8ce597c4b7015591286194"
 dependencies = [
  "async-fs-io",
  "tokio",
