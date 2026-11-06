@@ -269,3 +269,33 @@ This is a restricted catalogue, not complete datatype conformance. Lexical
 parsing, other literal domains, derived datatype ranges, facets, inconsistency
 rules and consumer adoption remain separate work. Complete profile names remain
 rejected. See [the numeric clause decision](docs/decisions/0008-numeric-identity-clauses.md).
+
+## Numeric membership and incompatible-type diagnostics
+
+`OwlNumericMembershipRuleId` supplies `numeric/dt-type2` and
+`numeric/dt-not-type` independently of existing presets. Adapters bind
+`OWL_NUMERIC_MEMBER_RELATION(literal, datatype_iri)` and
+`OWL_NUMERIC_NONMEMBER_RELATION(literal, datatype_iri)` from interpreted
+`OwlNumericValue::is_member_of` results. `OwlNumericDatatype::iri()` supplies
+the six exact datatype IRIs. Select these datatypes explicitly: real/rational
+are general OWL extensions that must be excluded from an OWL-RL selection.
+Derived integer ranges and other datatypes remain unsupported.
+
+Membership evidence produces generalized `rdf:type` triples. An asserted type
+joined to matching nonmembership produces
+`OWL_NUMERIC_TYPE_VIOLATION_RELATION(literal, datatype_iri)` witnesses. This
+separate diagnostic relation represents the contradiction; it is not RDF data.
+Missing membership evidence never implies nonmembership. Invalid lexical forms
+and unsupported interpretation must raise errors before binding either relation.
+
+`OwlNumericTypeViolation<L>::check_assertion` checks one observed assertion and
+returns a typed violation on a value-space mismatch. It preserves caller-owned
+literal identity, the interpreted value and the asserted datatype. Checked
+JSON/Postcard deserialization rejects reports whose value actually belongs to
+the asserted datatype, unknown fields and invalid nested values. Callers remain
+responsible for the lexical mapping and existence of the graph assertion.
+
+These are shared clauses and diagnostics, not a production executor or complete
+OWL-RL datatype map. Adapters own graph scope, streaming execution, reporting and
+termination policy. No graph is collected and no preset implicitly changes.
+See [the membership decision](docs/decisions/0009-numeric-membership-diagnostics.md).
