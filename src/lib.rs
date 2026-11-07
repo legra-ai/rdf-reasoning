@@ -1,5 +1,6 @@
 #![doc = include_str!("../README.md")]
 
+mod floating_lexical;
 mod list;
 mod literal;
 mod number;

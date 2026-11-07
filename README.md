@@ -237,8 +237,7 @@ and double are disjoint from each other and from real, including their special
 values. There is no numeric coercion. Huge decimal exponents stay compact.
 
 This is not the complete OWL datatype map: non-decimal rationals and irrational
-reals are not constructed, and other datatypes, floating lexical interpretation
-and general facets remain separate work. Integer/decimal lexical interpretation
+reals are not constructed, and other datatype domains and general facets remain separate work. Integer/decimal lexical interpretation
 and fixed derived integer ranges are supported below. Existing presets and Python compatibility keys are unaffected.
 See [the numeric domain decision](docs/decisions/0007-numeric-domain-membership.md).
 
@@ -320,8 +319,29 @@ large integer literals remain supported; fixed-range checks never truncate them.
 Compact extreme powers are checked without expanding the powers.
 
 Typed errors distinguish invalid grammar, datatype range errors, unsupported
-selectors and representation overflow. Float/double/real/rational lexical parsing
-is explicitly unsupported. Interpreted values feed the shared identity,
+selectors and representation overflow. Real/rational lexical parsing remains explicitly unsupported. Float/double
+interpretation is described below. Interpreted values feed the shared identity,
 membership and typed violation contracts; callers retain exact source literal
 identity and apply their input-size budgets. No consumer adapter or complete
 OWL-RL profile is introduced. See [the lexical mapping decision](docs/decisions/0010-integer-decimal-lexical-mapping.md).
+
+## Float and double literal interpretation
+
+`OwlNumericDatatype::parse_lexical` accepts XML Schema float/double decimal and
+scientific notation, plus exact `INF`, `+INF`, `-INF` and `NaN` spellings.
+Only outer XML whitespace is removed. Case variants, signed NaN, host-specific
+infinity spellings, hexadecimal input, Unicode digits and internal whitespace
+produce `InvalidLexicalForm`.
+
+After grammar validation, the pinned Rust parser converts directly to binary32
+or binary64 using nearest, ties-to-even rounding. Binary32 never passes through
+binary64. Overflow maps to signed infinity; underflow maps to a subnormal or
+signed zero. Large exponent strings do not expand powers. Existing constructors
+preserve disjoint value spaces and signed zeros and canonicalize NaN identity.
+No floating bit payload is inferred from NaN spelling.
+
+Independent bit fixtures cover normal/subnormal boundaries, exact underflow and
+overflow midpoints, ties-to-even and a binary32 double-rounding counterexample.
+This supplies shared numeric interpretation; consumer execution, general facets
+and complete OWL-RL conformance remain separate work. See
+[the floating lexical decision](docs/decisions/0011-floating-lexical-mapping.md).

@@ -36,7 +36,7 @@ fn malformed_lexical_forms_fail_without_coercion() {
     for text in ["1.0", ".5", "1e2", "--1", "+-1"] {
         assert_eq!(D::Integer.parse_lexical(text), Err(E::InvalidLexicalForm));
     }
-    for datatype in [D::Float, D::Double, D::Real, D::Rational] {
+    for datatype in [D::Real, D::Rational] {
         assert_eq!(datatype.parse_lexical("1"), Err(E::UnsupportedDatatype));
     }
 }

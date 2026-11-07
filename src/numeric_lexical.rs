@@ -1,4 +1,4 @@
-//! Shared XML Schema integer/decimal lexical mapping, independent of RDF storage.
+//! Shared XML Schema numeric lexical mapping, independent of RDF storage.
 use crate::{ExactNumber, OwlNumericDatatype, OwlNumericValue};
 use num_bigint::Sign;
 use std::fmt;
@@ -11,7 +11,7 @@ pub enum NumericLexicalError {
     InvalidLexicalForm,
     /// A grammatically valid integer is outside its declared datatype's range.
     OutOfRange,
-    /// This lexical interpreter supports only decimal and integer-derived types.
+    /// Lexical interpretation is not supported for the selected datatype.
     UnsupportedDatatype,
     /// The normalized value exceeds the compact signed-exponent representation.
     RepresentationOverflow,
@@ -30,25 +30,30 @@ impl fmt::Display for NumericLexicalError {
 impl std::error::Error for NumericLexicalError {}
 
 impl OwlNumericDatatype {
-    /// Interpret an XML Schema decimal or integer-derived lexical form exactly.
+    /// Interpret an XML Schema numeric lexical form at its declared precision.
     ///
-    /// Applies XML whitespace collapse (outer XML whitespace is removed; internal
-    /// whitespace cannot match the grammar). Decimal accepts an optional ASCII
-    /// sign and decimal point, with at least one ASCII digit. Integer datatypes
-    /// prohibit the decimal point. No exponent notation or Unicode digits are
-    /// accepted. Source literal identity/spelling remains caller-owned.
+    /// Applies XML whitespace collapse; internal whitespace and Unicode digits
+    /// cannot match these grammars. Integer/decimal parsing is exact and forbids
+    /// exponent notation. Float/double accept decimal/scientific notation plus
+    /// INF, +INF, -INF and NaN. They round directly to binary32/binary64 using
+    /// nearest, ties-to-even, including signed zeros, subnormals and infinities.
+    /// Real/rational lexical interpretation remains unsupported.
+    /// Source literal identity/spelling remains caller-owned.
     ///
-    /// Allocation scales with one lexical value, never a graph; callers own input
-    /// size/decoder budgets. No fixed-width integer truncation or floating rounding.
+    /// Allocation scales with one lexical value, never a graph; callers own
+    /// input size/decoder budgets. Fixed-range integers are never truncated.
     ///
     /// # Errors
     /// Rejects unsupported selectors, invalid grammar, derived range violations
     /// and compact representation overflow as distinct typed errors.
     pub fn parse_lexical(self, lexical: &str) -> Result<OwlNumericValue, NumericLexicalError> {
+        let lexical = lexical.trim_matches([' ', '\t', '\r', '\n']);
+        if matches!(self, Self::Float | Self::Double) {
+            return self.parse_floating(lexical);
+        }
         if self != Self::Decimal && !self.is_integer_datatype() {
             return Err(NumericLexicalError::UnsupportedDatatype);
         }
-        let lexical = lexical.trim_matches([' ', '\t', '\r', '\n']);
         let unsigned = lexical.strip_prefix(['+', '-']).unwrap_or(lexical);
         let mut digits = 0usize;
         let mut point = None;
