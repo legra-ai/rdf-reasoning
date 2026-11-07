@@ -186,3 +186,19 @@ impl serde::Serialize for OwlNumericValue {
         self.0.serialize(serializer)
     }
 }
+
+impl OwlNumericDatatype {
+    /// The exact datatype IRI used in generalized rdf:type assertions.
+    ///
+    /// Real and rational are general OWL numeric datatypes, excluded by OWL-RL.
+    pub const fn iri(self) -> &'static str {
+        match self {
+            Self::Decimal => "http://www.w3.org/2001/XMLSchema#decimal",
+            Self::Integer => "http://www.w3.org/2001/XMLSchema#integer",
+            Self::Float => "http://www.w3.org/2001/XMLSchema#float",
+            Self::Double => "http://www.w3.org/2001/XMLSchema#double",
+            Self::Real => "http://www.w3.org/2002/07/owl#real",
+            Self::Rational => "http://www.w3.org/2002/07/owl#rational",
+        }
+    }
+}
