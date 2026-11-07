@@ -149,3 +149,63 @@ fn derived_datatypes_and_errors_round_trip_in_both_formats() {
         "http://www.w3.org/2001/XMLSchema#unsignedInt"
     );
 }
+
+#[path = "support/relations.rs"]
+mod relations;
+
+#[test]
+fn parsed_values_feed_shared_membership_clauses_and_checked_diagnostics() {
+    let value = D::UnsignedByte.parse_lexical("+0255").unwrap();
+    assert_eq!(value, D::Decimal.parse_lexical("255.00").unwrap());
+    let literal = "+0255^^unsignedByte";
+    assert!(value.is_member_of(D::UnsignedByte));
+    assert!(!value.is_member_of(D::Byte));
+    let facts = relations::closure(
+        &[
+            rdf_reasoning::OwlNumericMembershipRuleId::DtType2.definition(),
+            rdf_reasoning::OwlNumericMembershipRuleId::DtNotType.definition(),
+        ],
+        &[
+            relations::Fact::new(
+                rdf_reasoning::OWL_NUMERIC_MEMBER_RELATION,
+                &[literal, D::UnsignedByte.iri()],
+            ),
+            relations::Fact::new(
+                rdf_reasoning::OWL_NUMERIC_NONMEMBER_RELATION,
+                &[literal, D::Byte.iri()],
+            ),
+            relations::Fact::new(
+                rdf_reasoning::TRIPLE_RELATION,
+                &[
+                    literal,
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+                    D::Byte.iri(),
+                ],
+            ),
+        ],
+    );
+    assert!(facts.contains(&relations::Fact::new(
+        rdf_reasoning::OWL_NUMERIC_TYPE_VIOLATION_RELATION,
+        &[literal, D::Byte.iri()]
+    )));
+    assert!(facts.contains(&relations::Fact::new(
+        rdf_reasoning::TRIPLE_RELATION,
+        &[
+            literal,
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+            D::UnsignedByte.iri()
+        ]
+    )));
+    let diagnostic =
+        rdf_reasoning::OwlNumericTypeViolation::check_assertion(literal, value, D::Byte)
+            .unwrap_err();
+    assert_eq!(*diagnostic.literal(), literal);
+    assert_eq!(
+        postcard::from_bytes::<rdf_reasoning::OwlNumericTypeViolation<String>>(
+            &postcard::to_allocvec(&diagnostic).unwrap()
+        )
+        .unwrap()
+        .datatype(),
+        D::Byte
+    );
+}
