@@ -14,6 +14,18 @@ class ReleaseCredentialTests(unittest.TestCase):
         prepare = workflow.split("\n  prepare:\n", 1)[1].split("\n  test:\n", 1)[0]
         self.steps = re.split(r"^      - ", prepare, flags=re.MULTILINE)[1:]
 
+    def test_all_release_planning_and_preparation_use_minor_breaking_policy(self):
+        root = Path(__file__).resolve().parents[1]
+        calls = []
+        for path in (root / ".github/workflows").glob("*.yml"):
+            steps = re.split(r"^      - ", path.read_text(), flags=re.MULTILINE)
+            calls.extend(step for step in steps
+                         if step.startswith("uses: legra-ai/github-actions/.github/actions/prepare-cargo-release@"))
+        self.assertTrue(calls, "The shared release pipeline must remain configured")
+        for step in calls:
+            with self.subTest(step=step):
+                self.assertIn("          breaking-change-bump: minor\n", step)
+
     def test_release_credentials_are_only_requested_on_main(self):
         writers = [step for step in self.steps if "id: writer\n" in step]
         self.assertEqual(len(writers), 1)
