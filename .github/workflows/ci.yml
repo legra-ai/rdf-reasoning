@@ -41,6 +41,7 @@ jobs:
         with:
           # Non-main preparation is read-only. A missing writer token on main
           # must remain an error, so select the non-main token first.
+          breaking-change-bump: minor
           token: ${{ github.ref != 'refs/heads/main' && github.token || steps.writer.outputs.token }}
 
   test:

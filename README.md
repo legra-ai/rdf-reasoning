@@ -146,7 +146,11 @@ python3 scripts/test-commit-policy.py
 cargo clippy --all-targets --all-features -- -D warnings
 ```
 
-The shared main CI pipeline is the only publisher. PRs validate the checkout
+The shared main CI pipeline is the only publisher. This zero-user pre-production
+crate uses patch releases for fixes and minor releases for features and breaking
+changes; breaking markers remain accurate. Every planning/preparation call uses
+`breaking-change-bump: minor`. Actual major-number increases still require
+explicit approval of their version and scope. PRs validate the checkout
 and packaged tests; Linux and Windows gate publication from the tested source.
 Repository protection, publication credentials and automatic-release evidence
 must be verified separately during bootstrap.
