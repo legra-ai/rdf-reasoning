@@ -170,6 +170,6 @@ fn checked_decoders_reject_noncanonical_or_unknown_values() {
     ] {
         assert!(serde_json::from_str::<V>(text).is_err(), "{text}");
     }
-    assert!(serde_json::from_str::<D>("\"unsigned-int\"").is_err());
-    assert!(postcard::from_bytes::<D>(&[6]).is_err());
+    assert!(serde_json::from_str::<D>("\"unsigned-int-unknown\"").is_err());
+    assert!(postcard::from_bytes::<D>(&[18]).is_err());
 }

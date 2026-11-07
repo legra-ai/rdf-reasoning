@@ -2,6 +2,7 @@
 use num_bigint::{BigInt, BigUint};
 use std::fmt;
 
+mod integer_range;
 mod normalization;
 mod representation;
 use representation::NumberWire;
