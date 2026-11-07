@@ -192,3 +192,75 @@ fn exact_underflow_and_overflow_midpoints_use_ties_to_even() {
         );
     }
 }
+
+#[path = "support/relations.rs"]
+mod relations;
+
+#[test]
+fn parsed_specials_feed_identity_rules_and_checked_transport() {
+    let first = D::Float.parse_lexical("NaN").unwrap();
+    let second = D::Float.parse_lexical(" \tNaN\n").unwrap();
+    let other_space = D::Double.parse_lexical("NaN").unwrap();
+    assert_eq!(first, second);
+    assert_ne!(first, other_space);
+    let facts = relations::closure(
+        &[
+            rdf_reasoning::OwlNumericRuleId::DtEq.definition(),
+            rdf_reasoning::OwlNumericRuleId::DtDiff.definition(),
+        ],
+        &[
+            relations::Fact::new(
+                rdf_reasoning::OWL_NUMERIC_VALUE_RELATION,
+                &["first-spelling", "float-nan"],
+            ),
+            relations::Fact::new(
+                rdf_reasoning::OWL_NUMERIC_VALUE_RELATION,
+                &["second-spelling", "float-nan"],
+            ),
+            relations::Fact::new(
+                rdf_reasoning::OWL_NUMERIC_VALUE_RELATION,
+                &["double-spelling", "double-nan"],
+            ),
+        ],
+    );
+    assert!(facts.contains(&relations::Fact::new(
+        rdf_reasoning::TRIPLE_RELATION,
+        &[
+            "first-spelling",
+            "http://www.w3.org/2002/07/owl#sameAs",
+            "second-spelling"
+        ]
+    )));
+    assert!(facts.contains(&relations::Fact::new(
+        rdf_reasoning::TRIPLE_RELATION,
+        &[
+            "first-spelling",
+            "http://www.w3.org/2002/07/owl#differentFrom",
+            "double-spelling"
+        ]
+    )));
+    #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+    struct Parsed {
+        spelling: String,
+        value: V,
+    }
+    for text in ["NaN", "INF", "-INF", "-0", "1.401298464324817e-45"] {
+        let report = Parsed {
+            spelling: text.to_owned(),
+            value: D::Float.parse_lexical(text).unwrap(),
+        };
+        assert_eq!(
+            serde_json::from_str::<Parsed>(&serde_json::to_string(&report).unwrap()).unwrap(),
+            report
+        );
+        assert_eq!(
+            postcard::from_bytes::<Parsed>(&postcard::to_allocvec(&report).unwrap()).unwrap(),
+            report
+        );
+        assert!(report.value.is_member_of(D::Float));
+        assert!(
+            rdf_reasoning::OwlNumericTypeViolation::check_assertion(text, report.value, D::Integer)
+                .is_err()
+        );
+    }
+}
