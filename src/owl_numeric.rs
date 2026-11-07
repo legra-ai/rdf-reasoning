@@ -95,6 +95,30 @@ pub enum OwlNumericDatatype {
     Float,
     /// XML Schema binary64 double, including signed zeros, infinities and NaN.
     Double,
+    /// XML Schema nonPositiveInteger.
+    NonPositiveInteger,
+    /// XML Schema negativeInteger.
+    NegativeInteger,
+    /// XML Schema long.
+    Long,
+    /// XML Schema int.
+    Int,
+    /// XML Schema short.
+    Short,
+    /// XML Schema byte.
+    Byte,
+    /// XML Schema nonNegativeInteger.
+    NonNegativeInteger,
+    /// XML Schema unsignedLong.
+    UnsignedLong,
+    /// XML Schema unsignedInt.
+    UnsignedInt,
+    /// XML Schema unsignedShort.
+    UnsignedShort,
+    /// XML Schema unsignedByte.
+    UnsignedByte,
+    /// XML Schema positiveInteger.
+    PositiveInteger,
 }
 
 /// A decimal, float or double OWL value identity, including non-finite floats.
@@ -149,7 +173,9 @@ impl OwlNumericValue {
     /// evaluates interpreted values, not literal lexical validity.
     pub fn is_member_of(&self, datatype: OwlNumericDatatype) -> bool {
         match (&self.0, datatype) {
-            (NumericWire::Decimal(value), OwlNumericDatatype::Integer) => value.is_integer(),
+            (NumericWire::Decimal(value), datatype) if datatype.is_integer_datatype() => {
+                datatype.contains_integer(value)
+            }
             (
                 NumericWire::Decimal(_),
                 OwlNumericDatatype::Decimal
@@ -193,6 +219,18 @@ impl OwlNumericDatatype {
     /// Real and rational are general OWL numeric datatypes, excluded by OWL-RL.
     pub const fn iri(self) -> &'static str {
         match self {
+            Self::NonPositiveInteger => "http://www.w3.org/2001/XMLSchema#nonPositiveInteger",
+            Self::NegativeInteger => "http://www.w3.org/2001/XMLSchema#negativeInteger",
+            Self::Long => "http://www.w3.org/2001/XMLSchema#long",
+            Self::Int => "http://www.w3.org/2001/XMLSchema#int",
+            Self::Short => "http://www.w3.org/2001/XMLSchema#short",
+            Self::Byte => "http://www.w3.org/2001/XMLSchema#byte",
+            Self::NonNegativeInteger => "http://www.w3.org/2001/XMLSchema#nonNegativeInteger",
+            Self::UnsignedLong => "http://www.w3.org/2001/XMLSchema#unsignedLong",
+            Self::UnsignedInt => "http://www.w3.org/2001/XMLSchema#unsignedInt",
+            Self::UnsignedShort => "http://www.w3.org/2001/XMLSchema#unsignedShort",
+            Self::UnsignedByte => "http://www.w3.org/2001/XMLSchema#unsignedByte",
+            Self::PositiveInteger => "http://www.w3.org/2001/XMLSchema#positiveInteger",
             Self::Decimal => "http://www.w3.org/2001/XMLSchema#decimal",
             Self::Integer => "http://www.w3.org/2001/XMLSchema#integer",
             Self::Float => "http://www.w3.org/2001/XMLSchema#float",

@@ -3,6 +3,7 @@
 mod list;
 mod literal;
 mod number;
+mod numeric_lexical;
 mod owl_numeric;
 mod owl_numeric_membership;
 mod owl_numeric_rules;
@@ -14,6 +15,7 @@ mod rule;
 pub use list::{ListRuleId, RDF_LIST_MEMBER_RELATION};
 pub use literal::{LITERAL_VALUE_RELATION, LiteralRuleId};
 pub use number::{ExactNumber, ExactNumberError};
+pub use numeric_lexical::NumericLexicalError;
 pub use owl_numeric::{OwlFiniteNumericValue, OwlNumericDatatype, OwlNumericValue};
 pub use owl_numeric_membership::{
     OWL_NUMERIC_MEMBER_RELATION, OWL_NUMERIC_NONMEMBER_RELATION,

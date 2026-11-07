@@ -226,16 +226,16 @@ canonicalize NaN payload/sign/signaling variations. Signed zeros remain distinct
 Checked JSON/Postcard decoding rejects noncanonical NaN payloads and non-decimal
 rational payloads. `OwlFiniteNumericValue` retains its finite-only contract.
 
-`is_member_of(OwlNumericDatatype)` supports exactly decimal, integer, rational,
-real, float and double membership for those represented values. Decimal values
+`is_member_of(OwlNumericDatatype)` supports decimal, integer, all twelve XML Schema integer-derived types,
+rational, real, float and double membership for those represented values. Decimal values
 are rational and real; integer membership requires an integral decimal. Float
 and double are disjoint from each other and from real, including their special
 values. There is no numeric coercion. Huge decimal exponents stay compact.
 
 This is not the complete OWL datatype map: non-decimal rationals and irrational
-reals are not constructed, derived integer ranges and other datatypes are not
-selectors, and lexical parsing, facets and datatype rule execution remain
-separate work. Existing presets and Python compatibility keys are unaffected.
+reals are not constructed, and other datatypes, floating lexical interpretation
+and general facets remain separate work. Integer/decimal lexical interpretation
+and fixed derived integer ranges are supported below. Existing presets and Python compatibility keys are unaffected.
 See [the numeric domain decision](docs/decisions/0007-numeric-domain-membership.md).
 
 ## Numeric dt-eq and dt-diff clauses
@@ -266,8 +266,8 @@ a graph-sized pair table. Consequences can still be quadratic in the selected
 literal domain; resource policy must not silently truncate them.
 
 This is a restricted catalogue, not complete datatype conformance. Lexical
-parsing, other literal domains, derived datatype ranges, facets, inconsistency
-rules and consumer adoption remain separate work. Complete profile names remain
+interpretation for other literal domains, general facets and consumer adoption
+remain separate work. Numeric membership/violation clauses are described below. Complete profile names remain
 rejected. See [the numeric clause decision](docs/decisions/0008-numeric-identity-clauses.md).
 
 ## Numeric membership and incompatible-type diagnostics
@@ -277,9 +277,10 @@ rejected. See [the numeric clause decision](docs/decisions/0008-numeric-identity
 `OWL_NUMERIC_MEMBER_RELATION(literal, datatype_iri)` and
 `OWL_NUMERIC_NONMEMBER_RELATION(literal, datatype_iri)` from interpreted
 `OwlNumericValue::is_member_of` results. `OwlNumericDatatype::iri()` supplies
-the six exact datatype IRIs. Select these datatypes explicitly: real/rational
+the exact supported datatype IRIs. Select these datatypes explicitly: real/rational
 are general OWL extensions that must be excluded from an OWL-RL selection.
-Derived integer ranges and other datatypes remain unsupported.
+The twelve built-in derived integer ranges are supported; other datatype
+domains remain separate work.
 
 Membership evidence produces generalized `rdf:type` triples. An asserted type
 joined to matching nonmembership produces
@@ -299,3 +300,24 @@ These are shared clauses and diagnostics, not a production executor or complete
 OWL-RL datatype map. Adapters own graph scope, streaming execution, reporting and
 termination policy. No graph is collected and no preset implicitly changes.
 See [the membership decision](docs/decisions/0009-numeric-membership-diagnostics.md).
+
+## Integer and decimal literal interpretation
+
+`OwlNumericDatatype::parse_lexical` interprets XML Schema decimal, integer and
+all twelve integer-derived datatypes exactly. It applies XML whitespace collapse,
+accepts ASCII signs/digits and decimal notation, and rejects exponent notation,
+internal whitespace, Unicode digits and invalid spellings. Integer datatypes
+require integer lexical grammar even when a decimal spelling denotes an integer.
+
+Derived sign restrictions and signed/unsigned 8/16/32/64-bit bounds are enforced
+through the shared membership operation. Negative zero belongs to unsigned and
+nonnegative spaces but not strictly positive or negative spaces. Arbitrarily
+large integer literals remain supported; fixed-range checks never truncate them.
+Compact extreme powers are checked without expanding the powers.
+
+Typed errors distinguish invalid grammar, datatype range errors, unsupported
+selectors and representation overflow. Float/double/real/rational lexical parsing
+is explicitly unsupported. Interpreted values feed the shared identity,
+membership and typed violation contracts; callers retain exact source literal
+identity and apply their input-size budgets. No consumer adapter or complete
+OWL-RL profile is introduced. See [the lexical mapping decision](docs/decisions/0010-integer-decimal-lexical-mapping.md).

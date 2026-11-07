@@ -37,7 +37,7 @@ pub const OWL_NUMERIC_TYPE_VIOLATION_RELATION: &str =
 /// Restricted numeric membership and incompatible-type witness clauses.
 ///
 /// These require explicit value-space evidence, not negation-as-failure.
-/// Existing presets are unaffected. The six numeric selectors include general
+/// Existing presets are unaffected. The numeric selectors include general
 /// OWL real/rational extensions; an OWL-RL selection must exclude those two.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, serde::Serialize, serde::Deserialize)]
 pub enum OwlNumericMembershipRuleId {
