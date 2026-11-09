@@ -42,7 +42,8 @@ assert_eq!(program.rules.len(), 18);
 | `rdfs-owl2-rl-relational-core` | All 60 positive flat clauses in `RuleId::ALL` |
 | `rdfs-owl2-rl-relational-core-without-owl-equality-rules` | The relational core without its ten dedicated OWL equality clauses |
 
-These are explicitly restricted rule presets. The two RDFS presets omit axiomatic
+These are explicitly restricted rule presets. The `rdfs-core` and `rdfs-plus-core`
+presets omit axiomatic
 triples, datatype recognition/value reasoning/ill-typed literal checks, automatic
 `rdf:_n` classification, existential simple-entailment checking and all equality
 rules. `Preset::rules()` and `Preset::exclusions()` expose the exact contract.

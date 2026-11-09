@@ -14,7 +14,8 @@ admits and implements the required tuple domain and execution capabilities.
 This crate supplies no execution, graph scope, provenance or storage policy.
 
 Tests first demonstrate the missing selector. Independent bounded fixed-point
-fixtures cover transitive membership, subclass cycles, disconnected classes,+unrelated properties, absent Resource/domain consequences and empty input.
+fixtures cover transitive membership, subclass cycles, disconnected classes,
+unrelated properties, absent Resource/domain consequences and empty input.
 Nested JSON and Postcard preserve exact selection and exclusions; unknown names
 and malformed selection objects fail. Existing generic tests validate compiled
 programs and checked transport for every preset.
