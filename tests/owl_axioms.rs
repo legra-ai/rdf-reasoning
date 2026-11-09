@@ -1,5 +1,5 @@
 //! Exact OWL 2 RL/RDF 2012 empty-body clauses, independent of execution.
-use datalog_structural_model::{DatalogProfile, Program, Rule, Term};
+use datalog_structural_model::{DatalogProfile, Program, Rule, Term, VariableSymbol};
 use rdf_reasoning::{OwlRlAxiomId as A, Preset, TRIPLE_RELATION};
 
 const RDF: &str = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
@@ -160,4 +160,41 @@ fn all_axioms_validate_and_round_trip_without_changing_presets() {
             .iter()
             .all(|rule| !rule.body.is_empty())
     }));
+}
+
+#[derive(Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+struct NestedAxiom {
+    id: A,
+    program: Program,
+}
+
+#[test]
+fn nested_transport_rechecks_ground_fact_safety() {
+    for id in A::ALL {
+        let value = NestedAxiom {
+            id: *id,
+            program: Program {
+                rules: id.definitions(),
+            },
+        };
+        assert_eq!(
+            serde_json::from_str::<NestedAxiom>(&serde_json::to_string(&value).unwrap()).unwrap(),
+            value
+        );
+        assert_eq!(
+            postcard::from_bytes::<NestedAxiom>(&postcard::to_allocvec(&value).unwrap()).unwrap(),
+            value
+        );
+        let mut malformed = value;
+        malformed.program.rules[0].head.terms[0] = Term::Variable(VariableSymbol::new("unbound"));
+        assert!(
+            serde_json::from_str::<NestedAxiom>(&serde_json::to_string(&malformed).unwrap())
+                .is_err()
+        );
+        assert!(
+            postcard::from_bytes::<NestedAxiom>(&postcard::to_allocvec(&malformed).unwrap())
+                .is_err()
+        );
+    }
 }
