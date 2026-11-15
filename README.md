@@ -100,6 +100,28 @@ no private engine, vendor rule files or third-party implementation was copied.
 
 ## Adapter contract
 
+`Rdf12AxiomId` supplies the fixed seed families from RDF 1.2 Semantics CRD
+(2026-09-24) independently: nine RDF facts, forty-one RDFS facts, and the three
+default datatype declarations (`xsd:string`, `rdf:langString`, `rdf:dirLangString`).
+The inventories include `rdf:reifies` and `rdfs:Proposition`. `definitions()` returns checked
+ground Datalog facts. Existing presets remain unchanged.
+
+`Rdf12ContainerProperty::try_new` checks one absolute `rdf:_n` IRI, requiring
+positive ASCII decimal digits without leading zeros. It preserves borrowed or
+owned text and imposes no machine-integer suffix limit. `rdf_definition()` emits
+its property declaration; `rdfs_definitions()` emits its membership-property
+declaration, domain and range. Invalid inputs fail rather than become `_1`.
+
+These helpers do not collect source/target vocabulary or choose graph scope.
+Appendix A entailment closure must include target-relevant container vocabulary
+and the explicit `_1` witness when that target selection is empty. A finite
+observed-input closure is a separate materialization contract. Literal lexical
+validation, generalized literal typing, consistency and existential target
+checking, target-context rules, and triple-term/proposition semantics are still
+required before claiming full RDFS 1.2. The pinned draft describes its Appendix A
+completeness result as postulated. See [the RDF 1.2 seed
+decision](docs/decisions/0015-rdf12-vocabulary-seeds.md).
+
 `OwlContradictionRuleId` separately supplies seven flat OWL 2 RL/RDF contradiction
 definitions: `eq-diff1`, `prp-irp`, `prp-asyp`, `prp-pdw`, `cax-dw`, `cls-com`,
 and `cls-nothing2`. Each checked clause emits an identified non-RDF witness
