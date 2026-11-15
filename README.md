@@ -91,6 +91,15 @@ no private engine, vendor rule files or third-party implementation was copied.
 
 ## Adapter contract
 
+`OwlRlAxiomId` separately exposes the four finite ground-axiom families from
+OWL 2 RL/RDF (2012): `prp-ap`, `cls-thing`, `cls-nothing1`, and `dt-type1`.
+`definitions()` returns checked empty-body Datalog facts: nine annotation
+property declarations, two class declarations, and 32 datatype declarations.
+Datatype declarations do not imply implemented lexical/value interpretation.
+These facts do not include optional RDF/RDFS axiomatic triples or change any
+existing preset. Real/rational extensions and newer RDF datatype vocabulary are
+outside the pinned RL inventory. See [the ground-axiom decision](docs/decisions/0012-owl-rl-ground-axioms.md).
+
 Every clause uses the three-place `TRIPLE_RELATION` relation in subject,
 predicate, object order. Rule constants contain full RDF/RDFS/OWL vocabulary
 IRIs. An adapter must bind those constants as IRIs and preserve exact identity
