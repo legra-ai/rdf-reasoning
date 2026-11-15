@@ -1,32 +1,33 @@
-//! Finite ground axioms from RDF 1.1 Semantics (2014).
+//! Finite ground axioms from RDF 1.2 Semantics CRD (2026-09-24).
 use crate::rule::Pattern;
 use datalog_structural_model::Rule;
 
 /// Exact finite seed families, separate from structural rule presets.
 ///
 /// This does not enumerate the infinite `rdf:_n` vocabulary. Entailment checking
-/// must seed target-relevant container IRIs through [`crate::Rdf11ContainerProperty`].
+/// must seed target-relevant container IRIs through [`crate::Rdf12ContainerProperty`].
 /// No selection here establishes complete RDFS execution or datatype semantics.
 #[derive(
     Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, serde::Serialize, serde::Deserialize,
 )]
 #[serde(rename_all = "kebab-case")]
-pub enum Rdf11AxiomId {
-    /// Eight non-container RDF axioms from section 8.
+pub enum Rdf12AxiomId {
+    /// Nine non-container RDF axioms from section 8.
     Rdf,
-    /// Thirty-eight non-container RDFS axioms from section 9.
+    /// Forty-one non-container RDFS axioms from section 9.
     Rdfs,
-    /// The two recognized default datatype declarations (`rdfs1`).
+    /// The three recognized default datatype declarations (`rdfs1`).
     DefaultDatatypes,
 }
 
-impl Rdf11AxiomId {
+impl Rdf12AxiomId {
     /// The three explicit finite seed families.
     pub const ALL: &'static [Self] = &[Self::Rdf, Self::Rdfs, Self::DefaultDatatypes];
 
     /// Checked ground facts for one selected finite family.
     ///
-    /// Default declarations recognize only `xsd:string` and `rdf:langString`.
+    /// Default declarations recognize `xsd:string`, `rdf:langString`, and
+    /// `rdf:dirLangString`.
     /// Encountering another datatype in input does not recognize it, and these
     /// declarations do not validate literal lexical forms or certify consistency.
     #[must_use]
@@ -37,6 +38,7 @@ impl Rdf11AxiomId {
                 ["rdf:subject", "rdf:type", "rdf:Property"],
                 ["rdf:predicate", "rdf:type", "rdf:Property"],
                 ["rdf:object", "rdf:type", "rdf:Property"],
+                ["rdf:reifies", "rdf:type", "rdf:Property"],
                 ["rdf:first", "rdf:type", "rdf:Property"],
                 ["rdf:rest", "rdf:type", "rdf:Property"],
                 ["rdf:value", "rdf:type", "rdf:Property"],
@@ -44,6 +46,7 @@ impl Rdf11AxiomId {
             ],
             Self::Rdfs => &[
                 ["rdf:type", "rdfs:domain", "rdfs:Resource"],
+                ["rdf:reifies", "rdfs:domain", "rdfs:Resource"],
                 ["rdfs:domain", "rdfs:domain", "rdf:Property"],
                 ["rdfs:range", "rdfs:domain", "rdf:Property"],
                 ["rdfs:subPropertyOf", "rdfs:domain", "rdf:Property"],
@@ -60,6 +63,7 @@ impl Rdf11AxiomId {
                 ["rdfs:label", "rdfs:domain", "rdfs:Resource"],
                 ["rdf:value", "rdfs:domain", "rdfs:Resource"],
                 ["rdf:type", "rdfs:range", "rdfs:Class"],
+                ["rdf:reifies", "rdfs:range", "rdfs:Proposition"],
                 ["rdfs:domain", "rdfs:range", "rdfs:Class"],
                 ["rdfs:range", "rdfs:range", "rdfs:Class"],
                 ["rdfs:subPropertyOf", "rdfs:range", "rdf:Property"],
@@ -84,19 +88,21 @@ impl Rdf11AxiomId {
                     "rdf:Property",
                 ],
                 ["rdfs:isDefinedBy", "rdfs:subPropertyOf", "rdfs:seeAlso"],
+                ["rdfs:Proposition", "rdfs:subClassOf", "rdfs:Resource"],
                 ["rdfs:Datatype", "rdfs:subClassOf", "rdfs:Class"],
             ],
             Self::DefaultDatatypes => &[
                 ["xsd:string", "rdf:type", "rdfs:Datatype"],
                 ["rdf:langString", "rdf:type", "rdfs:Datatype"],
+                ["rdf:dirLangString", "rdf:type", "rdfs:Datatype"],
             ],
         };
-        // bounded: at most 38 fixed standard ground facts, independent of input.
+        // bounded: at most 41 fixed standard ground facts, independent of input.
         triples
             .iter()
             .map(|row| {
                 Rule::try_new(Pattern(*row).atom(), Vec::new())
-                    .expect("RDF 1.1 ground axioms must be checked safe Datalog facts")
+                    .expect("RDF 1.2 ground axioms must be checked safe Datalog facts")
             })
             .collect()
     }

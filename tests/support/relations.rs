@@ -15,8 +15,13 @@ impl Fact {
 }
 
 pub fn closure(rules: &[Rule], input: &[Fact]) -> BTreeSet<Fact> {
+    closure_with_limit(rules, input, 128)
+}
+
+pub fn closure_with_limit(rules: &[Rule], input: &[Fact], fact_limit: usize) -> BTreeSet<Fact> {
     assert!(input.len() <= 12);
-    // bounded: these fixtures admit at most 128 distinct derived facts.
+    assert!(fact_limit <= 4096, "fixed semantic-fixture ceiling");
+    // bounded: every caller provides a fixed limit, never a production graph.
     let mut facts: BTreeSet<_> = input.iter().cloned().collect();
     loop {
         let mut additions = BTreeSet::new();
@@ -84,7 +89,7 @@ pub fn closure(rules: &[Rule], input: &[Fact]) -> BTreeSet<Fact> {
         }
         let before = facts.len();
         facts.extend(additions);
-        assert!(facts.len() <= 128, "finite fixture fact budget");
+        assert!(facts.len() <= fact_limit, "finite fixture fact budget");
         if before == facts.len() {
             return facts;
         }

@@ -18,7 +18,7 @@ const PREFIX: &str = "http://www.w3.org/1999/02/22-rdf-syntax-ns#_";
     try_from = "ContainerInput<S>",
     bound(deserialize = "S: serde::Deserialize<'de>")
 )]
-pub struct Rdf11ContainerProperty<S: AsRef<str> = String> {
+pub struct Rdf12ContainerProperty<S: AsRef<str> = String> {
     iri: S,
 }
 
@@ -30,9 +30,9 @@ struct ContainerInput<S> {
 
 /// The supplied IRI is not a canonical positive RDF container property.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
-pub struct InvalidRdf11ContainerProperty;
+pub struct InvalidRdf12ContainerProperty;
 
-impl fmt::Display for InvalidRdf11ContainerProperty {
+impl fmt::Display for InvalidRdf12ContainerProperty {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         formatter.write_str(
             "expected an absolute rdf:_n IRI with positive decimal n and no leading zeros",
@@ -40,21 +40,21 @@ impl fmt::Display for InvalidRdf11ContainerProperty {
     }
 }
 
-impl std::error::Error for InvalidRdf11ContainerProperty {}
+impl std::error::Error for InvalidRdf12ContainerProperty {}
 
-impl<S: AsRef<str>> Rdf11ContainerProperty<S> {
+impl<S: AsRef<str>> Rdf12ContainerProperty<S> {
     /// Check the exact namespace and canonical unbounded decimal suffix.
     /// # Errors
     /// Rejects every non-container IRI and invalid suffix; never substitutes `_1`.
-    pub fn try_new(iri: S) -> Result<Self, InvalidRdf11ContainerProperty> {
+    pub fn try_new(iri: S) -> Result<Self, InvalidRdf12ContainerProperty> {
         let suffix = iri
             .as_ref()
             .strip_prefix(PREFIX)
-            .ok_or(InvalidRdf11ContainerProperty)?;
+            .ok_or(InvalidRdf12ContainerProperty)?;
         if !matches!(suffix.as_bytes().first(), Some(b'1'..=b'9'))
             || !suffix.bytes().all(|byte| byte.is_ascii_digit())
         {
-            return Err(InvalidRdf11ContainerProperty);
+            return Err(InvalidRdf12ContainerProperty);
         }
         Ok(Self { iri })
     }
@@ -98,8 +98,8 @@ impl<S: AsRef<str>> Rdf11ContainerProperty<S> {
     }
 }
 
-impl<S: AsRef<str>> TryFrom<ContainerInput<S>> for Rdf11ContainerProperty<S> {
-    type Error = InvalidRdf11ContainerProperty;
+impl<S: AsRef<str>> TryFrom<ContainerInput<S>> for Rdf12ContainerProperty<S> {
+    type Error = InvalidRdf12ContainerProperty;
 
     fn try_from(input: ContainerInput<S>) -> Result<Self, Self::Error> {
         Self::try_new(input.iri)

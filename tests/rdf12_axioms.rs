@@ -1,6 +1,11 @@
-//! Independent inventories from RDF 1.1 Semantics (2014), sections 8 and 9.
+//! Independent inventories from RDF 1.2 Semantics CRD (2026-09-24), sections 8 and 9.
+#[path = "support/relations.rs"]
+mod relations;
+
 use datalog_structural_model::{DatalogProfile, Program, Rule, Term};
-use rdf_reasoning::{Rdf11AxiomId as A, Rdf11ContainerProperty as Container, TRIPLE_RELATION};
+use rdf_reasoning::{
+    Preset, Rdf12AxiomId as A, Rdf12ContainerProperty as Container, TRIPLE_RELATION,
+};
 use std::collections::BTreeSet;
 
 fn expand(value: &str) -> String {
@@ -27,7 +32,7 @@ fn triple(rule: Rule) -> [String; 3] {
 }
 
 fn inventory(id: A, expected: &[[&str; 3]]) {
-    // bounded: at most 38 fixed standard vocabulary triples, not caller facts.
+    // bounded: at most 41 fixed standard vocabulary triples, not caller facts.
     let actual: BTreeSet<_> = id.definitions().into_iter().map(triple).collect();
     let expected: BTreeSet<_> = expected.iter().map(|row| row.map(expand)).collect();
     assert_eq!(actual.len(), id.definitions().len(), "no duplicate axioms");
@@ -43,6 +48,7 @@ fn finite_rdf_axioms_are_exact() {
             ["rdf:subject", "rdf:type", "rdf:Property"],
             ["rdf:predicate", "rdf:type", "rdf:Property"],
             ["rdf:object", "rdf:type", "rdf:Property"],
+            ["rdf:reifies", "rdf:type", "rdf:Property"],
             ["rdf:first", "rdf:type", "rdf:Property"],
             ["rdf:rest", "rdf:type", "rdf:Property"],
             ["rdf:value", "rdf:type", "rdf:Property"],
@@ -57,6 +63,7 @@ fn finite_rdfs_axioms_are_exact_and_exclude_the_infinite_container_family() {
         A::Rdfs,
         &[
             ["rdf:type", "rdfs:domain", "rdfs:Resource"],
+            ["rdf:reifies", "rdfs:domain", "rdfs:Resource"],
             ["rdfs:domain", "rdfs:domain", "rdf:Property"],
             ["rdfs:range", "rdfs:domain", "rdf:Property"],
             ["rdfs:subPropertyOf", "rdfs:domain", "rdf:Property"],
@@ -73,6 +80,7 @@ fn finite_rdfs_axioms_are_exact_and_exclude_the_infinite_container_family() {
             ["rdfs:label", "rdfs:domain", "rdfs:Resource"],
             ["rdf:value", "rdfs:domain", "rdfs:Resource"],
             ["rdf:type", "rdfs:range", "rdfs:Class"],
+            ["rdf:reifies", "rdfs:range", "rdfs:Proposition"],
             ["rdfs:domain", "rdfs:range", "rdfs:Class"],
             ["rdfs:range", "rdfs:range", "rdfs:Class"],
             ["rdfs:subPropertyOf", "rdfs:range", "rdf:Property"],
@@ -97,6 +105,7 @@ fn finite_rdfs_axioms_are_exact_and_exclude_the_infinite_container_family() {
                 "rdf:Property",
             ],
             ["rdfs:isDefinedBy", "rdfs:subPropertyOf", "rdfs:seeAlso"],
+            ["rdfs:Proposition", "rdfs:subClassOf", "rdfs:Resource"],
             ["rdfs:Datatype", "rdfs:subClassOf", "rdfs:Class"],
         ],
     );
@@ -109,6 +118,7 @@ fn default_datatype_declarations_do_not_recognize_other_encountered_types() {
         &[
             ["xsd:string", "rdf:type", "rdfs:Datatype"],
             ["rdf:langString", "rdf:type", "rdfs:Datatype"],
+            ["rdf:dirLangString", "rdf:type", "rdfs:Datatype"],
         ],
     );
 }
@@ -122,6 +132,12 @@ fn one_container_iri_generates_only_its_four_axioms_without_integer_overflow() {
     ] {
         let iri = expand(&format!("rdf:{local}"));
         let property = Container::try_new(iri.as_str()).unwrap();
+        let rdf_facts = relations::closure(&[property.rdf_definition()], &[]);
+        assert_eq!(rdf_facts.len(), 1);
+        assert!(rdf_facts.contains(&relations::Fact::new(
+            TRIPLE_RELATION,
+            &[iri.as_str(), &expand("rdf:type"), &expand("rdf:Property")]
+        )));
         assert_eq!(property.iri(), iri);
         assert_eq!(
             property.iri().as_ptr(),
@@ -210,4 +226,62 @@ fn checked_seed_types_and_programs_round_trip_in_nested_transport() {
         )
         .is_err()
     );
+}
+
+#[test]
+fn checked_binary_container_decoding_rejects_invalid_iris() {
+    #[derive(serde::Serialize)]
+    struct RawContainer<'a> {
+        iri: &'a str,
+    }
+    for iri in [
+        "urn:other:_1",
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#_0",
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#_01",
+    ] {
+        let bytes = postcard::to_allocvec(&RawContainer { iri }).unwrap();
+        assert!(postcard::from_bytes::<Container>(&bytes).is_err());
+    }
+}
+
+#[test]
+fn selected_target_container_seeds_join_the_existing_core_on_empty_source() {
+    for suffix in ["_937", "_1"] {
+        let iri = expand(&format!("rdf:{suffix}"));
+        let container = Container::try_new(iri.as_str()).unwrap();
+        // bounded: 14 core clauses + 53 fixed seeds + 4 one-container seeds.
+        let mut rules = Preset::RdfsCore.program().rules;
+        for family in A::ALL {
+            rules.extend(family.definitions());
+        }
+        rules.push(container.rdf_definition());
+        rules.extend(container.rdfs_definitions());
+        // bounded: complete closure of 53 fixed seeds and one container; no source facts.
+        let result = relations::closure_with_limit(&rules, &[], 4096);
+        let has = |row: [&str; 3]| {
+            let terms = row.map(expand);
+            result.contains(&relations::Fact::new(
+                TRIPLE_RELATION,
+                &[&terms[0], &terms[1], &terms[2]],
+            ))
+        };
+        assert!(has([
+            &format!("rdf:{suffix}"),
+            "rdf:type",
+            "rdfs:ContainerMembershipProperty"
+        ]));
+        assert!(has([
+            &format!("rdf:{suffix}"),
+            "rdfs:subPropertyOf",
+            "rdfs:member"
+        ]));
+        assert!(has(["rdf:List", "rdf:type", "rdfs:Class"]));
+        assert!(has(["xsd:string", "rdfs:subClassOf", "rdfs:Literal"]));
+        let other = if suffix == "_1" { "_937" } else { "_1" };
+        assert!(!has([
+            &format!("rdf:{other}"),
+            "rdf:type",
+            "rdfs:ContainerMembershipProperty"
+        ]));
+    }
 }
