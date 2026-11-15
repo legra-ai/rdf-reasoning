@@ -36,17 +36,26 @@ assert_eq!(program.rules.len(), 18);
 | Selector | Rules |
 | --- | --- |
 | `none` | No rules or axioms |
+| `rdfs-subclass` | Exactly `rdfs9` and `rdfs11`: membership inheritance and subclass transitivity |
 | `rdfs-core` | `rdf1`, `rdfs2`, `rdfs3`, `rdfs4a`, `rdfs4b`, `rdfs5`–`rdfs13` |
 | `rdfs-plus-core` | `rdfs-core` plus `prp-symp`, `prp-trp`, `prp-inv1`, `prp-inv2` |
 | `rdfs-owl2-rl-relational-core` | All 60 positive flat clauses in `RuleId::ALL` |
 | `rdfs-owl2-rl-relational-core-without-owl-equality-rules` | The relational core without its ten dedicated OWL equality clauses |
 
-These are explicitly restricted rule presets. The two RDFS presets omit axiomatic
+These are explicitly restricted rule presets. The `rdfs-core` and `rdfs-plus-core`
+presets omit axiomatic
 triples, datatype recognition/value reasoning/ill-typed literal checks, automatic
 `rdf:_n` classification, existential simple-entailment checking and all equality
 rules. `Preset::rules()` and `Preset::exclusions()` expose the exact contract.
 `RuleId::definition()` returns each actual checked clause, rather than a label
 that an engine must independently implement.
+
+`rdfs-subclass` is the deliberately narrower contract requested by the initial
+inference-engine consumer. It selects only the two shared definitions above,
+excluding all other RDF/RDFS clauses and OWL-specific rules as well as axioms,
+datatype semantics, automatic container-vocabulary classification and existential
+entailment checking. It adds no executor or graph adapter and is not full RDFS.
+Existing presets retain their exact selections.
 
 The complete `RuleId::ALL` catalogue has 60 positive relational clauses. Beyond
 the initial presets, it includes equality reflexivity/symmetry/transitivity and

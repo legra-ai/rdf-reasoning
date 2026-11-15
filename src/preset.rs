@@ -25,6 +25,10 @@ pub enum Exclusion {
     CardinalityRules,
     /// Rules detecting inconsistent assertions or datatype assignments.
     InconsistencyChecks,
+    /// RDF/RDFS clauses other than the selected rdfs9 and rdfs11.
+    OtherRdfsRules,
+    /// OWL-specific clauses beyond the two selected RDFS rules.
+    OwlRules,
 }
 
 /// An exact, finite ruleset, separate from forward/backward execution strategy.
@@ -44,6 +48,8 @@ pub enum Preset {
     RdfsOwl2RlRelationalCore,
     /// The relational core excluding ten dedicated OWL identity-equality clauses.
     RdfsOwl2RlRelationalCoreWithoutOwlEqualityRules,
+    /// Only membership inheritance (rdfs9) and subclass transitivity (rdfs11).
+    RdfsSubclass,
 }
 
 impl Preset {
@@ -54,6 +60,7 @@ impl Preset {
         Self::RdfsPlusCore,
         Self::RdfsOwl2RlRelationalCore,
         Self::RdfsOwl2RlRelationalCoreWithoutOwlEqualityRules,
+        Self::RdfsSubclass,
     ];
 
     const WITHOUT_OWL_EQUALITY: [RuleId; 50] = Self::without_owl_equality();
@@ -80,6 +87,7 @@ impl Preset {
     pub const fn name(self) -> &'static str {
         match self {
             Self::None => "none",
+            Self::RdfsSubclass => "rdfs-subclass",
             Self::RdfsCore => "rdfs-core",
             Self::RdfsPlusCore => "rdfs-plus-core",
             Self::RdfsOwl2RlRelationalCore => "rdfs-owl2-rl-relational-core",
@@ -94,6 +102,7 @@ impl Preset {
     pub const fn rules(self) -> &'static [RuleId] {
         match self {
             Self::None => &[],
+            Self::RdfsSubclass => &[Rdfs9, Rdfs11],
             Self::RdfsCore => &[
                 Rdf1, Rdfs2, Rdfs3, Rdfs4a, Rdfs4b, Rdfs5, Rdfs6, Rdfs7, Rdfs8, Rdfs9, Rdfs10,
                 Rdfs11, Rdfs12, Rdfs13,
@@ -114,6 +123,18 @@ impl Preset {
     pub const fn exclusions(self) -> &'static [Exclusion] {
         match self {
             Self::None => &[],
+            Self::RdfsSubclass => &[
+                Exclusion::OtherRdfsRules,
+                Exclusion::OwlRules,
+                Exclusion::AxiomaticTriples,
+                Exclusion::DatatypeSemantics,
+                Exclusion::ContainerVocabularySeeding,
+                Exclusion::SimpleEntailmentChecking,
+                Exclusion::Equality,
+                Exclusion::ListRules,
+                Exclusion::CardinalityRules,
+                Exclusion::InconsistencyChecks,
+            ],
             Self::RdfsCore | Self::RdfsPlusCore => &[
                 Exclusion::AxiomaticTriples,
                 Exclusion::DatatypeSemantics,
@@ -181,6 +202,7 @@ impl FromStr for Preset {
     fn from_str(input: &str) -> Result<Self, Self::Err> {
         match input {
             "none" => Ok(Self::None),
+            "rdfs-subclass" => Ok(Self::RdfsSubclass),
             "rdfs-core" => Ok(Self::RdfsCore),
             "rdfs-plus-core" => Ok(Self::RdfsPlusCore),
             "rdfs-owl2-rl-relational-core" => Ok(Self::RdfsOwl2RlRelationalCore),
