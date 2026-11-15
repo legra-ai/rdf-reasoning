@@ -13,6 +13,8 @@ mod owl_numeric_rules;
 mod owl_numeric_violation;
 mod owlrl;
 mod preset;
+mod rdf11_axioms;
+mod rdf11_container;
 mod rule;
 
 pub use list::{ListRuleId, RDF_LIST_MEMBER_RELATION};
@@ -30,4 +32,6 @@ pub use owl_numeric_rules::{OWL_NUMERIC_VALUE_RELATION, OwlNumericRuleId};
 pub use owl_numeric_violation::OwlNumericTypeViolation;
 pub use owlrl::Owlrl762RuleId;
 pub use preset::{Exclusion, Preset, PresetParseError};
+pub use rdf11_axioms::Rdf11AxiomId;
+pub use rdf11_container::{InvalidRdf11ContainerProperty, Rdf11ContainerProperty};
 pub use rule::{RuleId, TRIPLE_RELATION};

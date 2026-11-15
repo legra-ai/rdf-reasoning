@@ -100,6 +100,25 @@ no private engine, vendor rule files or third-party implementation was copied.
 
 ## Adapter contract
 
+`Rdf11AxiomId` supplies the fixed RDF 1.1 (2014) seed families independently:
+eight RDF facts, thirty-eight RDFS facts, and the two default recognized datatype
+declarations (`xsd:string`, `rdf:langString`). `definitions()` returns checked
+ground Datalog facts. Existing presets remain unchanged.
+
+`Rdf11ContainerProperty::try_new` checks one absolute `rdf:_n` IRI, requiring
+positive ASCII decimal digits without leading zeros. It preserves borrowed or
+owned text and imposes no machine-integer suffix limit. `rdf_definition()` emits
+its property declaration; `rdfs_definitions()` emits its membership-property
+declaration, domain and range. Invalid inputs fail rather than become `_1`.
+
+These helpers do not collect source/target vocabulary or choose graph scope.
+Appendix A entailment closure must include target-relevant container vocabulary
+and the explicit `_1` witness when that target selection is empty. A finite
+observed-input closure is a separate materialization contract. Literal lexical
+validation, generalized literal typing, consistency and existential target
+checking are still required before claiming full RDFS. See [the RDF 1.1 seed
+decision](docs/decisions/0015-rdf11-vocabulary-seeds.md).
+
 `OwlContradictionRuleId` separately supplies seven flat OWL 2 RL/RDF contradiction
 definitions: `eq-diff1`, `prp-irp`, `prp-asyp`, `prp-pdw`, `cax-dw`, `cls-com`,
 and `cls-nothing2`. Each checked clause emits an identified non-RDF witness
