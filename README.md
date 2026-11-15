@@ -122,6 +122,18 @@ required before claiming full RDFS 1.2. The pinned draft describes its Appendix 
 completeness result as postulated. See [the RDF 1.2 seed
 decision](docs/decisions/0015-rdf12-vocabulary-seeds.md).
 
+`Rdf12Datatype` supplies the three mandatory default datatype identities and pure
+lexical validation. `recognize_iri()` leaves unknown encountered datatypes opaque;
+strict IRI parsing/Serde rejects unsupported requested recognition. Consumers
+must include all three default datatypes and validate structural facets first.
+`validate_lexical()` applies XML **1.1** Char to `xsd:string`; legal language and
+directional lexical payloads have no ill-typed forms. It borrows a UTF-8 string or
+fragment and returns a checked `Rdf12LexicalError` with a fragment-relative byte
+offset and invalid character. UTF-8 decoding, global offsets, source identity and
+facet validation remain caller-owned. This does not certify graph consistency
+or complete datatype entailment. See [the default datatype
+decision](docs/decisions/0016-rdf12-default-datatypes.md).
+
 `OwlContradictionRuleId` separately supplies seven flat OWL 2 RL/RDF contradiction
 definitions: `eq-diff1`, `prp-irp`, `prp-asyp`, `prp-pdw`, `cax-dw`, `cls-com`,
 and `cls-nothing2`. Each checked clause emits an identified non-RDF witness

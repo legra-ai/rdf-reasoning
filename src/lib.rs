@@ -15,6 +15,7 @@ mod owlrl;
 mod preset;
 mod rdf12_axioms;
 mod rdf12_container;
+mod rdf12_datatype;
 mod rule;
 
 pub use list::{ListRuleId, RDF_LIST_MEMBER_RELATION};
@@ -34,4 +35,5 @@ pub use owlrl::Owlrl762RuleId;
 pub use preset::{Exclusion, Preset, PresetParseError};
 pub use rdf12_axioms::Rdf12AxiomId;
 pub use rdf12_container::{InvalidRdf12ContainerProperty, Rdf12ContainerProperty};
+pub use rdf12_datatype::{Rdf12Datatype, Rdf12LexicalError, UnsupportedRdf12Datatype};
 pub use rule::{RuleId, TRIPLE_RELATION};
