@@ -200,6 +200,60 @@ fn joins_do_not_confuse_different_subjects_predicates_or_classes() {
     }
 }
 
+#[test]
+fn aliases_and_self_pairs_are_not_suppressed_by_extra_inequality_guards() {
+    // bounded: four two-premise self-pair cases with at most four witness terms.
+    for (id, rows, operands) in [
+        (
+            C::EqDiff1,
+            [["a", "owl:sameAs", "a"], ["a", "owl:differentFrom", "a"]],
+            vec!["a", "a"],
+        ),
+        (
+            C::PrpAsyp,
+            [["p", "rdf:type", "owl:AsymmetricProperty"], ["a", "p", "a"]],
+            vec!["p", "a", "a"],
+        ),
+        (
+            C::PrpPdw,
+            [["p", "owl:propertyDisjointWith", "p"], ["a", "p", "b"]],
+            vec!["p", "p", "a", "b"],
+        ),
+        (
+            C::CaxDw,
+            [["A", "owl:disjointWith", "A"], ["a", "rdf:type", "A"]],
+            vec!["A", "A", "a"],
+        ),
+    ] {
+        // bounded: exactly two independent fixture facts.
+        let input: Vec<_> = rows.iter().map(fact).collect();
+        assert!(
+            closure(&[id.definition()], &input)
+                .contains(&Fact::new(id.witness_relation(), &operands))
+        );
+    }
+}
+
+#[test]
+fn equality_requires_evidence_and_witnesses_preserve_opaque_literal_keys() {
+    let first = "scoped-literal-key:01^^integer";
+    let second = "scoped-literal-key:1^^integer";
+    let difference = fact(&[first, "owl:differentFrom", second]);
+    let rule = C::EqDiff1.definition();
+    let without_equality = closure(
+        std::slice::from_ref(&rule),
+        std::slice::from_ref(&difference),
+    );
+    assert!(
+        !without_equality
+            .iter()
+            .any(|row| row.0 == C::EqDiff1.witness_relation())
+    );
+    let result = closure(&[rule], &[difference, fact(&[first, "owl:sameAs", second])]);
+    assert!(result.contains(&Fact::new(C::EqDiff1.witness_relation(), &[first, second])));
+    assert!(!result.contains(&Fact::new(C::EqDiff1.witness_relation(), &[second, first])));
+}
+
 #[derive(Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Nested {
