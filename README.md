@@ -100,6 +100,21 @@ no private engine, vendor rule files or third-party implementation was copied.
 
 ## Adapter contract
 
+`OwlContradictionRuleId` separately supplies seven flat OWL 2 RL/RDF contradiction
+definitions: `eq-diff1`, `prp-irp`, `prp-asyp`, `prp-pdw`, `cax-dw`, `cls-com`,
+and `cls-nothing2`. Each checked clause emits an identified non-RDF witness
+relation with documented ordered operands. Witnesses must never enter RDF output.
+Consumers must explicitly opt into diagnostic semantics and bounded reporting;
+positive Datalog capability support alone does not certify inconsistency detection.
+Existing presets do not select these clauses. Lists, cardinalities, negative
+property assertions and remaining datatype diagnostics are separate work.
+
+`eq-diff1` joins matching explicit `owl:sameAs` and `owl:differentFrom` tuples.
+It assumes neither a unique-name policy nor host-value comparison. Equality
+generation/substitution is a separate selected rule contract; consumers claiming
+consistency for that contract must account for its complete selected closure.
+See [the contradiction decision](docs/decisions/0014-flat-owl-contradiction-witnesses.md).
+
 `OwlRlAxiomId` separately exposes the four finite ground-axiom families from
 OWL 2 RL/RDF (2012): `prp-ap`, `cls-thing`, `cls-nothing1`, and `dt-type1`.
 `definitions()` returns checked empty-body Datalog facts: nine annotation

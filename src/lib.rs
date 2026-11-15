@@ -6,6 +6,7 @@ mod literal;
 mod number;
 mod numeric_lexical;
 mod owl_axioms;
+mod owl_contradictions;
 mod owl_numeric;
 mod owl_numeric_membership;
 mod owl_numeric_rules;
@@ -19,6 +20,7 @@ pub use literal::{LITERAL_VALUE_RELATION, LiteralRuleId};
 pub use number::{ExactNumber, ExactNumberError};
 pub use numeric_lexical::NumericLexicalError;
 pub use owl_axioms::OwlRlAxiomId;
+pub use owl_contradictions::OwlContradictionRuleId;
 pub use owl_numeric::{OwlFiniteNumericValue, OwlNumericDatatype, OwlNumericValue};
 pub use owl_numeric_membership::{
     OWL_NUMERIC_MEMBER_RELATION, OWL_NUMERIC_NONMEMBER_RELATION,
