@@ -199,6 +199,26 @@ preset selects these clauses implicitly, and syntax admission alone does not
 certify metadata inspection or execution. See [the literal-typing
 decision](docs/decisions/0017-rdf12-generalized-literal-typing.md).
 
+`Rdf12OccurrenceRuleId` supplies the RDF 1.2 occurrence-based `rdfD2` and `rdfs4`
+definitions independently of the restricted presets. The trusted auxiliary
+`RDF12_APPEARING_TRIPLE_RELATION(s, p, o)` includes selected source triples and
+recursively appearing triple terms; `rdfD2` derives property membership for `p`.
+`RDF12_APPEARING_TERM_RELATION(term)` includes each appearing subject, predicate,
+object and nested component; `rdfs4` derives resource membership. A literal's
+internal datatype IRI is not a separately appearing term merely as metadata.
+Occurrence premises must never become asserted quoted contents or user RDF.
+
+Source processing selects both rules. Appendix A target-context processing
+selects **only `rdfs4`**, including scoped target blanks: it must not derive
+arbitrary target predicates as properties or promote target assertions. Keep
+source and target blank scopes distinct while preserving repeated/nested target
+identity; final matching still treats target blanks existentially. Retain the
+root occurrence, path, role and immutable snapshot as semantic evidence.
+Adapters own bounded async traversal and reload evicted asserted and inferred
+facts; unsupported terms, read failures, cancellation and budget exhaustion must
+fail explicitly. The definitions do not implement traversal, target matching or
+a complete closure schedule. See [the occurrence decision](docs/decisions/0021-rdf12-occurrence-rules.md).
+
 `Rdf12ExistentialAxiomId` describes four nonempty-class requirements: `rdfD1a`
 for each mandatory default datatype and `rdfs14a` for `rdfs:Proposition`.
 `name()` and `class_iri()` identify the requirement; checked nested Serde retains

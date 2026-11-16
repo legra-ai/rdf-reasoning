@@ -19,6 +19,7 @@ mod rdf12_datatype;
 mod rdf12_datatype_conflict;
 mod rdf12_existential;
 mod rdf12_literal;
+mod rdf12_occurrence;
 mod rdf12_proposition;
 mod rule;
 
@@ -43,5 +44,8 @@ pub use rdf12_datatype::{Rdf12Datatype, Rdf12LexicalError, UnsupportedRdf12Datat
 pub use rdf12_datatype_conflict::Rdf12DatatypeConflictId;
 pub use rdf12_existential::Rdf12ExistentialAxiomId;
 pub use rdf12_literal::{RDF12_LITERAL_DATATYPE_RELATION, Rdf12LiteralRuleId};
+pub use rdf12_occurrence::{
+    RDF12_APPEARING_TERM_RELATION, RDF12_APPEARING_TRIPLE_RELATION, Rdf12OccurrenceRuleId,
+};
 pub use rdf12_proposition::Rdf12PropositionRuleId;
 pub use rule::{RuleId, TRIPLE_RELATION};
