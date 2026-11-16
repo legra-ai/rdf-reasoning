@@ -134,6 +134,17 @@ facet validation remain caller-owned. This does not certify graph consistency
 or complete datatype entailment. See [the default datatype
 decision](docs/decisions/0016-rdf12-default-datatypes.md).
 
+`Rdf12LiteralRuleId::GrdfD1(datatype)` provides three checked default-map literal
+typing clauses. Each fixes its datatype IRI as a constant and consumes the
+auxiliary `RDF12_LITERAL_DATATYPE_RELATION(literal_key, declared_datatype)`.
+Adapters must validate standard metadata and recognized lexical payloads before
+binding that relation, preserving source/target/recursive occurrence context as
+separate semantic evidence. These premises are not user RDF triples. Input
+`rdf:type rdfs:Datatype` declarations do not enable extra recognition. No existing
+preset selects these clauses implicitly, and syntax admission alone does not
+certify metadata inspection or execution. See [the literal-typing
+decision](docs/decisions/0017-rdf12-generalized-literal-typing.md).
+
 `OwlContradictionRuleId` separately supplies seven flat OWL 2 RL/RDF contradiction
 definitions: `eq-diff1`, `prp-irp`, `prp-asyp`, `prp-pdw`, `cax-dw`, `cls-com`,
 and `cls-nothing2`. Each checked clause emits an identified non-RDF witness
