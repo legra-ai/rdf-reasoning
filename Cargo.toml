@@ -1,6 +1,6 @@
 [package]
 name = "rdf-reasoning"
-version = "2.10.0"
+version = "2.10.1"
 description = "Portable RDF reasoning rules and explicit entailment preset contracts"
 authors = ["Jacobus Geluk <jacobus.geluk@dataroad.com>"]
 edition = "2024"
@@ -16,7 +16,7 @@ include = ["Cargo.toml", "build.rs", "README.md", "LICENSE-APACHE", "LICENSE-MIT
 
 [dependencies]
 num-bigint = "0.5.1"
-datalog-structural-model = "=3.0.0"
+datalog-structural-model = "=3.0.4"
 serde = { version = "1", features = ["derive"] }
 
 [dev-dependencies]
