@@ -25,7 +25,11 @@ the generic rule representation lives in `datalog-structural-model`.
 The goal is a shared semantic foundation for RDF/RDFS 1.2 and the practically
 useful, rule-based OWL 2 reasoning variants: OWL 2 RL/RDF, precisely specified
 Horst variants, and other explicitly defined rule profiles where they serve
-real applications. Complete OWL 2 DL reasoning is outside the current goal.
+real applications. SHACL 1.2 reasoning is also an intended part of this shared
+semantic foundation, with its supported inference and rule semantics to be
+specified explicitly alongside the RDF/OWL profiles. This does not imply that
+SHACL validation alone provides reasoning or that SHACL 1.2 reasoning is already
+implemented here. Complete OWL 2 DL reasoning is outside the current goal.
 This is the intended direction, not a claim that these profiles are complete
 today. The table below lists the exact presets currently implemented; separate
 axiom, datatype and diagnostic APIs do not automatically expand those presets.
