@@ -170,6 +170,24 @@ facet validation remain caller-owned. This does not certify graph consistency
 or complete datatype entailment. See [the default datatype
 decision](docs/decisions/0016-rdf12-default-datatypes.md).
 
+`Rdf12DatatypeConflictId` supplies three implementation diagnostics for the
+pairwise disjoint default datatype classes: string/language string,
+string/directional language string, and language/directional language string.
+Each checked definition joins two positive `rdf:type` memberships for the same
+exact member key and emits a unary non-RDF witness relation. These diagnostic
+names are not W3C entailment rule identifiers. Graph datatype declarations do
+not extend recognition, and missing memberships never imply nonmembership.
+
+Evaluate these against source closure and scoped nonempty-class witnesses
+**before target-context augmentation**, retaining both exact premises, diagnostic
+ID and source scope. A contradictory subclass constraint can therefore be
+detected without literal data once its nonempty datatype witness is supplied.
+Executors must support on-demand async access to persisted asserted and inferred
+memberships: eviction is not logical deletion, and read/cancellation/resource
+errors cannot become a consistency verdict. Existing presets are unchanged;
+these definitions alone do not certify complete consistency checking. See
+[the default datatype conflict decision](docs/decisions/0020-rdf12-datatype-conflicts.md).
+
 `Rdf12LiteralRuleId::GrdfD1(datatype)` provides three checked default-map literal
 typing clauses. Each fixes its datatype IRI as a constant and consumes the
 auxiliary `RDF12_LITERAL_DATATYPE_RELATION(literal_key, declared_datatype)`.
