@@ -181,6 +181,21 @@ preset selects these clauses implicitly, and syntax admission alone does not
 certify metadata inspection or execution. See [the literal-typing
 decision](docs/decisions/0017-rdf12-generalized-literal-typing.md).
 
+`Rdf12ExistentialAxiomId` describes four nonempty-class requirements: `rdfD1a`
+for each mandatory default datatype and `rdfs14a` for `rdfs:Proposition`.
+`name()` and `class_iri()` identify the requirement; checked nested Serde retains
+the exact datatype parameter. These are semantic descriptors rather than safe
+Datalog `Rule` definitions: the executor must allocate a fresh scoped blank
+witness once per descriptor and entailment attempt/snapshot, persist the binding
+in caller-owned storage, and reuse it within that scope. Distinct keys do not
+assert unequal denotations. A fixed user IRI, Skolem IRI or selected lexical
+representative would change the contract. Preserve descriptor, ground membership,
+scope and input origin as semantic evidence, even for an empty source. RDF
+selects the three datatype requirements; RDFS additionally selects the proposition
+requirement. No preset or generic Datalog syntax is expanded. Actual witness
+execution and source-to-target matching require separate consumer tests. See
+[the existential requirement decision](docs/decisions/0018-rdf12-existential-requirements.md).
+
 `OwlContradictionRuleId` separately supplies seven flat OWL 2 RL/RDF contradiction
 definitions: `eq-diff1`, `prp-irp`, `prp-asyp`, `prp-pdw`, `cax-dw`, `cls-com`,
 and `cls-nothing2`. Each checked clause emits an identified non-RDF witness
