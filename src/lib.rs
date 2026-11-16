@@ -16,6 +16,7 @@ mod preset;
 mod rdf12_axioms;
 mod rdf12_container;
 mod rdf12_datatype;
+mod rdf12_literal;
 mod rule;
 
 pub use list::{ListRuleId, RDF_LIST_MEMBER_RELATION};
@@ -36,4 +37,5 @@ pub use preset::{Exclusion, Preset, PresetParseError};
 pub use rdf12_axioms::Rdf12AxiomId;
 pub use rdf12_container::{InvalidRdf12ContainerProperty, Rdf12ContainerProperty};
 pub use rdf12_datatype::{Rdf12Datatype, Rdf12LexicalError, UnsupportedRdf12Datatype};
+pub use rdf12_literal::{RDF12_LITERAL_DATATYPE_RELATION, Rdf12LiteralRuleId};
 pub use rule::{RuleId, TRIPLE_RELATION};
