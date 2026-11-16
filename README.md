@@ -196,6 +196,24 @@ requirement. No preset or generic Datalog syntax is expanded. Actual witness
 execution and source-to-target matching require separate consumer tests. See
 [the existential requirement decision](docs/decisions/0018-rdf12-existential-requirements.md).
 
+`Rdf12PropositionRuleId::Grdfs14` supplies the separate proposition-constructor
+clause. Given `(p, rdf:type, rdf:Property)`, `(s, rdf:type, rdfs:Resource)` and
+`(o, rdf:type, rdfs:Resource)`, it derives the membership of `<<(s p o)>>` in
+`rdfs:Proposition`. The nested `Term::TripleTerm` holds an atom whose relation is
+`TRIPLE_RELATION` and whose three ordered terms are subject, predicate and object.
+Dynamic predicates, generalized literal keys and nested terms retain identity;
+quoted contents do not become asserted triples.
+
+Consumers must explicitly admit triple terms and a bounded construction phase
+over a selected immutable snapshot, with the three premise tuples and phase
+identity retained as evidence. Check nesting after substitution and report
+resource limits explicitly. Unrestricted recursive constructor closure can grow
+without bound. Adequate typing, recursive occurrence and target/substitution
+context, occurrence rule `rdfs14`, and complete controller scheduling remain
+separate obligations. The pinned draft postulates Appendix A completeness;
+this constructor alone does not certify it or enable a full RDFS preset. See
+[the proposition construction decision](docs/decisions/0019-rdf12-proposition-construction.md).
+
 `OwlContradictionRuleId` separately supplies seven flat OWL 2 RL/RDF contradiction
 definitions: `eq-diff1`, `prp-irp`, `prp-asyp`, `prp-pdw`, `cax-dw`, `cls-com`,
 and `cls-nothing2`. Each checked clause emits an identified non-RDF witness
