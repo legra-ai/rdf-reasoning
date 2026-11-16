@@ -51,7 +51,7 @@ fn every_default_literal_rule_preserves_the_exact_literal_key_and_datatype() {
 #[test]
 fn graph_datatype_declarations_do_not_enable_unsupported_recognition() {
     const UNKNOWN: &str = "urn:datatype:opaque";
-    // bounded: three authored rules and four independent facts.
+    // bounded: three authored rules and five independent facts.
     let rules: Vec<_> = R::ALL.iter().map(|id| id.definition()).collect();
     let input = [
         Fact::new(META, &["unknown-literal", UNKNOWN]),
@@ -60,6 +60,11 @@ fn graph_datatype_declarations_do_not_enable_unsupported_recognition() {
         Fact::new(
             "urn:unrelated-metadata",
             &["other-literal", D::String.iri()],
+        ),
+        // User RDF using the auxiliary IRI as its predicate cannot forge metadata.
+        Fact::new(
+            TRIPLE_RELATION,
+            &["injected-literal", META, D::String.iri()],
         ),
     ];
     assert_eq!(closure(&rules, &input).len(), input.len());
