@@ -22,9 +22,9 @@ checksum = "f2032f911046de80f0a198e0901378627c33f59ea0ac00e363d481118bd70a53"
 
 [[package]]
 name = "bumpalo"
-version = "3.20.3"
+version = "3.20.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "72f5acc6cb2ba439de613abc23857ec3d78374d8ed5ac84e9d11336e87da8649"
+checksum = "87a0cf66fd1eb2fb7b822cb78370d82303750809bc6ba855f3f58e517d3238db"
 
 [[package]]
 name = "bytes"
@@ -49,9 +49,9 @@ dependencies = [
 
 [[package]]
 name = "datalog-structural-model"
-version = "3.0.4"
+version = "3.0.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0633f304d91fa22d698aee02b8f96f4f38fb47f9c4bd05b612270aecfe015bfb"
+checksum = "b3eaf288c21d4dd6e930060b32905059645052fc0c38c7da93cc91a20380c165"
 dependencies = [
  "rhusky",
  "rustc-hash",
