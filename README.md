@@ -136,6 +136,33 @@ no private engine, vendor rule files or third-party implementation was copied.
 
 ## Adapter contract
 
+### Shared authored regression cases
+
+[`tests/fixtures/rdf12-entailment.json`](tests/fixtures/rdf12-entailment.json)
+contains fifteen authored source/target cases for RDF 1.2 Turtle under default-map
+RDFS entailment. It pins the semantic and syntax editions, format/revision,
+license, provenance, independent source/target blank scopes, stable case IDs,
+expected Boolean entailment and explicit requirements. The cases cover nested
+and repeated triple terms, consistent and noninjective blank mappings, quoted
+contents remaining unasserted, source/target container vocabulary and nonempty
+datatype witnesses. These are project regression cases, not official W3C tests
+or a full conformance suite.
+
+Adapters parse the two documents with distinct blank scopes, preserving repeated
+and nested identities within each document, then run their own bounded reasoning
+and matching. Reject unknown fields or requirements. Unmet requirements must be
+reported as unsupported, never skipped and counted as passing. Read, parse,
+cancellation and resource errors remain distinct from an expected `false` result.
+No shared parser, controller, runtime or store is provided by this fixture data.
+
+The crate's tests check typed manifest validation and nested JSON/Postcard round
+trips, not Turtle parsing or engine execution. Packaging verifies fixture bytes
+against the checkout, and extracted-package tests read the packaged JSON directly.
+Consumer adapters must independently execute supported cases, including separate
+eviction/reload and error-path tests. See [the fixture decision](docs/decisions/0022-authored-entailment-fixtures.md).
+
+### Semantic building blocks
+
 `Rdf12AxiomId` supplies the fixed seed families from RDF 1.2 Semantics CRD
 (2026-09-24) independently: nine RDF facts, forty-one RDFS facts, and the three
 default datatype declarations (`xsd:string`, `rdf:langString`, `rdf:dirLangString`).
@@ -150,7 +177,14 @@ declaration, domain and range. Invalid inputs fail rather than become `_1`.
 
 These helpers do not collect source/target vocabulary or choose graph scope.
 Appendix A entailment closure must include target-relevant container vocabulary
-and the explicit `_1` witness when that target selection is empty. A finite
+and the explicit `_1` witness when that target selection is empty. Target-only
+selection is insufficient: also supply seeds for relevant canonical container
+IRIs appearing in selected source assertions and source-derived tuples. For
+example, source `:a rdf:_937 :b` entails `:a rdfs:member :b` even when the target
+contains no `rdf:_937`, through its membership-property axiom, `rdfs12` and
+`rdfs7`. Discover such vocabulary with bounded async traversal or indexed probes,
+including persisted facts reloaded on demand; do not enumerate the infinite
+container vocabulary or treat cache contents as the whole source. A finite
 observed-input closure is a separate materialization contract. Literal lexical
 validation, generalized literal typing, consistency and existential target
 checking, target-context rules, and triple-term/proposition semantics are still

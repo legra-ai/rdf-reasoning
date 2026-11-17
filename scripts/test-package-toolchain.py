@@ -12,6 +12,33 @@ from unittest.mock import patch
 
 
 class PackageToolchainTests(unittest.TestCase):
+    def test_fixture_archive_bytes_must_match_checkout(self):
+        source = pathlib.Path(__file__).with_name("test-package.py")
+        spec = importlib.util.spec_from_file_location("package_fixture_validation", source)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory() as directory:
+            root = pathlib.Path(directory)
+            fixture = root / "tests/fixtures/cases.json"
+            fixture.parent.mkdir(parents=True)
+            fixture.write_bytes(b'{"format":1}\n')
+            for content in [b'{"format":1}\n', b'{"format":2}\n', None]:
+                with self.subTest(content=content):
+                    buffer = io.BytesIO()
+                    with tarfile.open(fileobj=buffer, mode="w") as writer:
+                        if content is not None:
+                            entry = tarfile.TarInfo("sample-1/tests/fixtures/cases.json")
+                            entry.size = len(content)
+                            writer.addfile(entry, io.BytesIO(content))
+                    buffer.seek(0)
+                    with tarfile.open(fileobj=buffer) as archive:
+                        args = (archive, root, "sample-1", ["tests/fixtures/cases.json"])
+                        if content == b'{"format":1}\n':
+                            module.verify_fixture_bytes(*args)
+                        else:
+                            with self.assertRaises(RuntimeError):
+                                module.verify_fixture_bytes(*args)
+
     def test_hook_installation_uses_package_root_outside_working_directory(self):
         root = pathlib.Path(__file__).resolve().parents[1]
         with tempfile.TemporaryDirectory() as directory:

@@ -8,6 +8,20 @@ import tempfile
 import tomllib
 
 
+def verify_fixture_bytes(archive, root, stem, paths):
+    """Require each tracked fixture payload to survive packaging byte-for-byte."""
+    members = set(archive.getnames())
+    for name in paths:
+        if not name.startswith("tests/fixtures/"):
+            continue
+        packaged = f"{stem}/{name}"
+        if packaged not in members:
+            raise RuntimeError(f"Published archive omits fixture: {name}")
+        stream = archive.extractfile(packaged)
+        if stream is None or stream.read() != (root / name).read_bytes():
+            raise RuntimeError(f"Published archive changes fixture bytes: {name}")
+
+
 def main():
     root = pathlib.Path(__file__).resolve().parent.parent
     manifest = tomllib.loads((root / "Cargo.toml").read_text())
@@ -39,6 +53,7 @@ def main():
             missing = [name for name in tests if f"{stem}/{name}" not in members]
             if missing:
                 raise RuntimeError(f"Published archive omits tests: {', '.join(missing)}")
+            verify_fixture_bytes(archive, root, stem, tests)
             archive.extractall(target / "unpacked", filter="data")
 
         # Execute from the extracted archive, with no repository test sources.
