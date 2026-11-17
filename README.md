@@ -136,6 +136,33 @@ no private engine, vendor rule files or third-party implementation was copied.
 
 ## Adapter contract
 
+### Shared authored regression cases
+
+[`tests/fixtures/rdf12-entailment.json`](tests/fixtures/rdf12-entailment.json)
+contains fifteen authored source/target cases for RDF 1.2 Turtle under default-map
+RDFS entailment. It pins the semantic and syntax editions, format/revision,
+license, provenance, independent source/target blank scopes, stable case IDs,
+expected Boolean entailment and explicit requirements. The cases cover nested
+and repeated triple terms, consistent and noninjective blank mappings, quoted
+contents remaining unasserted, source/target container vocabulary and nonempty
+datatype witnesses. These are project regression cases, not official W3C tests
+or a full conformance suite.
+
+Adapters parse the two documents with distinct blank scopes, preserving repeated
+and nested identities within each document, then run their own bounded reasoning
+and matching. Reject unknown fields or requirements. Unmet requirements must be
+reported as unsupported, never skipped and counted as passing. Read, parse,
+cancellation and resource errors remain distinct from an expected `false` result.
+No shared parser, controller, runtime or store is provided by this fixture data.
+
+The crate's tests check typed manifest validation and nested JSON/Postcard round
+trips, not Turtle parsing or engine execution. Packaging verifies fixture bytes
+against the checkout, and extracted-package tests read the packaged JSON directly.
+Consumer adapters must independently execute supported cases, including separate
+eviction/reload and error-path tests. See [the fixture decision](docs/decisions/0022-authored-entailment-fixtures.md).
+
+### Semantic building blocks
+
 `Rdf12AxiomId` supplies the fixed seed families from RDF 1.2 Semantics CRD
 (2026-09-24) independently: nine RDF facts, forty-one RDFS facts, and the three
 default datatype declarations (`xsd:string`, `rdf:langString`, `rdf:dirLangString`).
