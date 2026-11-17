@@ -10,6 +10,10 @@ const PREFIX: &str = "http://www.w3.org/1999/02/22-rdf-syntax-ns#_";
 /// The suffix has no leading zeros and is not parsed into a machine integer.
 /// Selecting relevant IRIs is a consumer responsibility: Appendix A entailment
 /// closure uses target vocabulary and `rdf:_1` when no target container is used.
+/// Also seed relevant containers appearing in selected source assertions and
+/// source-derived tuples: target-only selection misses source membership
+/// consequences. Discover these through bounded authoritative async access;
+/// persisted or evicted source facts remain relevant.
 /// Observed-input-only seeding does not certify complete entailment checking.
 #[derive(
     Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, serde::Serialize, serde::Deserialize,

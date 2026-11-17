@@ -150,7 +150,14 @@ declaration, domain and range. Invalid inputs fail rather than become `_1`.
 
 These helpers do not collect source/target vocabulary or choose graph scope.
 Appendix A entailment closure must include target-relevant container vocabulary
-and the explicit `_1` witness when that target selection is empty. A finite
+and the explicit `_1` witness when that target selection is empty. Target-only
+selection is insufficient: also supply seeds for relevant canonical container
+IRIs appearing in selected source assertions and source-derived tuples. For
+example, source `:a rdf:_937 :b` entails `:a rdfs:member :b` even when the target
+contains no `rdf:_937`, through its membership-property axiom, `rdfs12` and
+`rdfs7`. Discover such vocabulary with bounded async traversal or indexed probes,
+including persisted facts reloaded on demand; do not enumerate the infinite
+container vocabulary or treat cache contents as the whole source. A finite
 observed-input closure is a separate materialization contract. Literal lexical
 validation, generalized literal typing, consistency and existential target
 checking, target-context rules, and triple-term/proposition semantics are still
