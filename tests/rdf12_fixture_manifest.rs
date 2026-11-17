@@ -58,6 +58,7 @@ enum Requirement {
     ContainerSeeding,
     TargetContext,
     DefaultDatatypeWitnesses,
+    CoreRuleClosure,
 }
 
 impl From<Manifest> for ManifestInput {
@@ -125,6 +126,30 @@ fn packaged_fixture_manifest_has_checked_identity_and_nested_round_trips() {
         postcard::from_bytes::<Manifest>(&postcard::to_allocvec(&manifest).unwrap()).unwrap(),
         manifest
     );
+}
+
+#[test]
+fn target_construction_pair_requires_post_constructor_core_closure() {
+    let manifest: Manifest = serde_json::from_str(DATA).unwrap();
+    let find = |id| manifest.0.cases.iter().find(|case| case.id == id).unwrap();
+    let positive = find("rdf12-target-construction-core-coupling");
+    let negative = find("rdf12-target-construction-untyped-predicate");
+    assert_eq!(positive.source_turtle, negative.source_turtle);
+    assert!(positive.expected);
+    assert!(!negative.expected);
+    assert_ne!(positive.target_turtle, negative.target_turtle);
+    for case in [positive, negative] {
+        assert!(case.requires.contains(&Requirement::CoreRuleClosure));
+        assert!(
+            case.requires
+                .contains(&Requirement::PropositionConstruction)
+        );
+        assert!(case.requires.contains(&Requirement::TargetContext));
+        assert!(
+            case.requires
+                .contains(&Requirement::ConsistentSimpleMatching)
+        );
+    }
 }
 
 #[test]
