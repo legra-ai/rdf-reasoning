@@ -153,6 +153,26 @@ fn target_construction_pair_requires_post_constructor_core_closure() {
 }
 
 #[test]
+fn chained_target_construction_records_interleaved_core_requirements() {
+    let manifest: Manifest = serde_json::from_str(DATA).unwrap();
+    let chain = manifest
+        .0
+        .cases
+        .iter()
+        .find(|case| case.id == "rdf12-target-construction-core-chain")
+        .unwrap();
+    assert!(chain.expected);
+    for requirement in [
+        Requirement::CoreRuleClosure,
+        Requirement::PropositionConstruction,
+        Requirement::TargetContext,
+        Requirement::ConsistentSimpleMatching,
+    ] {
+        assert!(chain.requires.contains(&requirement));
+    }
+}
+
+#[test]
 fn unknown_fields_requirements_and_ambiguous_scopes_are_rejected() {
     for broken in [
         DATA.replacen("\"format\":", "\"extra\":true,\"format\":", 1),

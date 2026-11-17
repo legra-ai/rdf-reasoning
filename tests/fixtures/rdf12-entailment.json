@@ -9,6 +9,13 @@
   "blank_node_scopes": "independent-source-target",
   "cases": [
     {
+      "id": "rdf12-target-construction-core-chain",
+      "source_turtle": "@prefix : <urn:example:> . @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> . @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> . :root :rel :d . :p a rdf:Property . rdfs:Proposition rdfs:subClassOf rdf:Property .",
+      "target_turtle": "@prefix : <urn:example:> . @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> . :root :rel _:z . _:x rdfs:subPropertyOf <<( _:z :p :b )>> . _:x a rdfs:Proposition . _:y rdfs:subPropertyOf <<( _:x :p :c )>> . _:y a rdfs:Proposition .",
+      "expected": true,
+      "requires": ["recursive-occurrences", "target-context", "proposition-construction", "core-rule-closure", "consistent-simple-matching"]
+    },
+    {
       "id": "rdf12-target-construction-core-coupling",
       "source_turtle": "@prefix : <urn:example:> . @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> . @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> . :a :rel :b . :p a rdf:Property . rdfs:Proposition rdfs:subClassOf rdf:Property .",
       "target_turtle": "@prefix : <urn:example:> . @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> . :a :rel _:x . _:v rdfs:subPropertyOf <<( _:x :p :c )>> . _:v a rdfs:Proposition .",

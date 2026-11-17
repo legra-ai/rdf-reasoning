@@ -139,7 +139,7 @@ no private engine, vendor rule files or third-party implementation was copied.
 ### Shared authored regression cases
 
 [`tests/fixtures/rdf12-entailment.json`](tests/fixtures/rdf12-entailment.json)
-contains seventeen authored source/target cases for RDF 1.2 Turtle under default-map
+contains eighteen authored source/target cases for RDF 1.2 Turtle under default-map
 RDFS entailment. It pins the semantic and syntax editions, format/revision,
 license, provenance, independent source/target blank scopes, stable case IDs,
 expected Boolean entailment and explicit requirements. The cases cover nested
@@ -152,7 +152,11 @@ Fixture revision 2 adds a legal target-construction pair whose outer blank
 binding determines a quoted object's subject. The positive case needs proposition
 construction followed by core class/property rules; the negative case uses a
 predicate not established as a property by the source. Both keep triple terms
-in Turtle object positions. The explicit `core-rule-closure` requirement is a
+in Turtle object positions. A chained positive case additionally requires core
+closure between two requested constructions: the first constructed proposition
+must acquire Resource membership before it can supply the next subject.
+This exposes an interleaving obligation, not permission for an unrestricted
+recursive constructor fixed point. The explicit `core-rule-closure` requirement is a
 new manifest requirement value, so strict adapters must recognize it before
 consuming this revision. No new runtime rule or complete controller schedule is
 provided. Individually validated phase composition does not certify a complete
