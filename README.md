@@ -139,7 +139,7 @@ no private engine, vendor rule files or third-party implementation was copied.
 ### Shared authored regression cases
 
 [`tests/fixtures/rdf12-entailment.json`](tests/fixtures/rdf12-entailment.json)
-contains eighteen authored source/target cases for RDF 1.2 Turtle under default-map
+contains twenty authored source/target cases for RDF 1.2 Turtle under default-map
 RDFS entailment. It pins the semantic and syntax editions, format/revision,
 license, provenance, independent source/target blank scopes, stable case IDs,
 expected Boolean entailment and explicit requirements. The cases cover nested
@@ -161,6 +161,11 @@ new manifest requirement value, so strict adapters must recognize it before
 consuming this revision. No new runtime rule or complete controller schedule is
 provided. Individually validated phase composition does not certify a complete
 RDFS controller for arbitrary goals.
+
+Fixture revision 3 adds a false-proof regression for unestablished whole target
+triple terms and a positive case preserving source-established terms. Occurrence
+alone cannot supply a triple term's missing property/denotation premise. The
+existing requirement vocabulary and format 1 are unchanged.
 
 Adapters parse the two documents with distinct blank scopes, preserving repeated
 and nested identities within each document, then run their own bounded reasoning
@@ -262,6 +267,13 @@ arbitrary target predicates as properties or promote target assertions. Keep
 source and target blank scopes distinct while preserving repeated/nested target
 identity; final matching still treats target blanks existentially. Retain the
 root occurrence, path, role and immutable snapshot as semantic evidence.
+Whole target triple terms require an additional admission check: their denotation
+must follow from source evidence or validated construction with an established
+property in the middle slot. Otherwise defer whole-term Resource typing while
+still traversing atomic components. Preserve source-established Resource facts.
+Unconditionally typing a target term can manufacture a false reflexive-schema
+proof; this is not licensed by the draft's postulated closure procedure. See
+[the target denotation correction](docs/decisions/0023-target-term-denotation.md).
 Adapters own bounded async traversal and reload evicted asserted and inferred
 facts; unsupported terms, read failures, cancellation and budget exhaustion must
 fail explicitly. The definitions do not implement traversal, target matching or
