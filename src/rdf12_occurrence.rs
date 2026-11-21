@@ -8,6 +8,11 @@ use datalog_structural_model::{Atom, Literal, PredicateSymbol, Rule};
 /// preserving literal, blank-node and triple-term identity. Literal metadata such
 /// as its internal datatype IRI is not another appearing term merely by being
 /// metadata. The caller selects an immutable source or target-context scope.
+/// In target context, admit only terms whose denotation is established. Atomic
+/// components remain eligible after literal validation, but a whole triple term
+/// needs source evidence or validated construction with its property premise.
+/// Otherwise defer that whole-term premise; do not invent Resource membership.
+/// Preserve already established Resource facts and continue recursive traversal.
 /// Keep root/path/role/snapshot evidence separately; these premises are not RDF.
 pub const RDF12_APPEARING_TERM_RELATION: &str = "urn:rdf-reasoning:rdf12-appearing-term";
 
@@ -26,6 +31,9 @@ pub const RDF12_APPEARING_TRIPLE_RELATION: &str = "urn:rdf-reasoning:rdf12-appea
 /// repeated/nested target identity. Those blanks remain existential target
 /// variables, not fixed IRIs or new asserted source properties. Target evidence
 /// must not contaminate source consistency or assertion provenance.
+/// A target triple term's syntactic occurrence alone does not establish its
+/// denotation: the triple interpretation function requires a property in its
+/// middle slot. Adapters must enforce this before binding whole-term premises.
 ///
 /// Adapters own bounded async occurrence traversal over the selected authoritative
 /// snapshot, including reloading evicted asserted and inferred facts. Cache misses
@@ -39,7 +47,7 @@ pub enum Rdf12OccurrenceRuleId {
     /// An appearing source triple's predicate is a property, even inside a term.
     #[serde(rename = "rdfD2")]
     RdfD2,
-    /// Any appearing term denotes a resource in the selected semantic context.
+    /// An admitted, denoting appearing term is a resource in the selected context.
     #[serde(rename = "rdfs4")]
     Rdfs4,
 }

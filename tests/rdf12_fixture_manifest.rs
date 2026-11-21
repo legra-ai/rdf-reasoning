@@ -173,6 +173,26 @@ fn chained_target_construction_records_interleaved_core_requirements() {
 }
 
 #[test]
+fn target_denotation_cases_do_not_invent_or_erase_whole_term_resource_proofs() {
+    let manifest: Manifest = serde_json::from_str(DATA).unwrap();
+    let find = |id| manifest.0.cases.iter().find(|case| case.id == id).unwrap();
+    let unestablished = find("rdf12-unestablished-target-term-not-self-supporting");
+    let established = find("rdf12-established-source-term-preserves-resource-proof");
+    assert_eq!(unestablished.target_turtle, established.target_turtle);
+    assert!(!unestablished.expected);
+    assert!(established.expected);
+    assert_ne!(unestablished.source_turtle, established.source_turtle);
+    for case in [unestablished, established] {
+        assert!(case.requires.contains(&Requirement::TargetContext));
+        assert!(case.requires.contains(&Requirement::CoreRuleClosure));
+        assert!(
+            case.requires
+                .contains(&Requirement::ConsistentSimpleMatching)
+        );
+    }
+}
+
+#[test]
 fn unknown_fields_requirements_and_ambiguous_scopes_are_rejected() {
     for broken in [
         DATA.replacen("\"format\":", "\"extra\":true,\"format\":", 1),
