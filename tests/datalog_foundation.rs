@@ -2,7 +2,7 @@
 
 use datalog_structural_model::{
     AggregateBody, Aggregator, Atom, BindExpr, ConstantSymbol, Literal, PredicateSymbol, Rule,
-    Term, VariableSymbol,
+    RuleIndex, Term, VariableSymbol,
 };
 use rdf_reasoning::Preset;
 
@@ -72,7 +72,10 @@ fn catalogue_extension_preserves_strict_negative_dependencies() {
         ),
     ]);
     let strata = program.stratify().unwrap();
-    assert!(strata.stratum_of_rule(offset + 2).unwrap() > strata.stratum_of_rule(offset).unwrap());
+    assert!(
+        strata.stratum_of_rule(RuleIndex::new(offset + 2)).unwrap()
+            > strata.stratum_of_rule(RuleIndex::new(offset)).unwrap()
+    );
 }
 
 #[test]
@@ -90,8 +93,8 @@ fn catalogue_extensions_allow_stratified_tuple_partitions() {
         program.validate().unwrap();
         let strata = program.stratify().unwrap();
         let offset = program.rules.len() - 2;
-        assert_eq!(strata.stratum_of_rule(offset), Some(1));
-        assert_eq!(strata.stratum_of_rule(offset + 1), Some(0));
+        assert_eq!(strata.stratum_of_rule(RuleIndex::new(offset)), Some(1));
+        assert_eq!(strata.stratum_of_rule(RuleIndex::new(offset + 1)), Some(0));
         let json = serde_json::to_string(&program).unwrap();
         assert_eq!(
             serde_json::from_str::<datalog_structural_model::Program>(&json).unwrap(),
