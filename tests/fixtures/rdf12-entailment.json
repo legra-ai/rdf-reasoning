@@ -1,6 +1,6 @@
 {
   "format": 1,
-  "revision": 2,
+  "revision": 3,
   "license": "MIT OR Apache-2.0",
   "provenance": "authored-regression",
   "semantics": "https://www.w3.org/TR/2026/CRD-rdf12-semantics-20260924/",
@@ -8,6 +8,20 @@
   "entailment": "rdfs12-default",
   "blank_node_scopes": "independent-source-target",
   "cases": [
+    {
+      "id": "rdf12-unestablished-target-term-not-self-supporting",
+      "source_turtle": "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> . rdfs:Resource rdfs:subClassOf rdfs:Class .",
+      "target_turtle": "@prefix : <urn:example:> . @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> . _:x rdfs:subClassOf <<( :a :q :b )>> .",
+      "expected": false,
+      "requires": ["recursive-occurrences", "target-context", "core-rule-closure", "consistent-simple-matching"]
+    },
+    {
+      "id": "rdf12-established-source-term-preserves-resource-proof",
+      "source_turtle": "@prefix : <urn:example:> . @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> . rdfs:Resource rdfs:subClassOf rdfs:Class . :s :claims <<( :a :q :b )>> .",
+      "target_turtle": "@prefix : <urn:example:> . @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> . _:x rdfs:subClassOf <<( :a :q :b )>> .",
+      "expected": true,
+      "requires": ["recursive-occurrences", "target-context", "proposition-construction", "core-rule-closure", "consistent-simple-matching"]
+    },
     {
       "id": "rdf12-target-construction-core-chain",
       "source_turtle": "@prefix : <urn:example:> . @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> . @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> . :root :rel :d . :p a rdf:Property . rdfs:Proposition rdfs:subClassOf rdf:Property .",
