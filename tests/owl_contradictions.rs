@@ -283,7 +283,11 @@ fn identities_and_checked_clauses_survive_nested_transport() {
             value
         );
         let mut malformed = value;
-        malformed.program.rules[0].head.terms[0] = Term::Variable(VariableSymbol::new("unbound"));
+        malformed.program.rules[0]
+            .head
+            .as_atom_mut()
+            .expect("single-atom head")
+            .terms[0] = Term::Variable(VariableSymbol::new("unbound"));
         assert!(
             serde_json::from_str::<Nested>(&serde_json::to_string(&malformed).unwrap()).is_err()
         );
@@ -294,12 +298,13 @@ fn identities_and_checked_clauses_survive_nested_transport() {
     assert!(serde_json::from_str::<C>("\"unknown\"").is_err());
     assert!(serde_json::from_str::<C>("{\"eq-diff1\":{\"extra\":true}}").is_err());
     for preset in Preset::ALL {
-        assert!(
-            preset
-                .program()
-                .rules
-                .iter()
-                .all(|rule| rule.head.predicate.as_str() == TRIPLE_RELATION)
-        );
+        assert!(preset.program().rules.iter().all(|rule| {
+            rule.head
+                .as_atom()
+                .expect("single-atom head")
+                .predicate
+                .as_str()
+                == TRIPLE_RELATION
+        }));
     }
 }

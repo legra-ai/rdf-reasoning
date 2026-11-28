@@ -52,10 +52,12 @@ impl Fixture {
         bindings
             .iter()
             .map(|binding| {
-                std::array::from_fn(|index| match &rule.head.terms[index] {
-                    Term::Variable(variable) => binding[variable.as_str()].clone(),
-                    Term::Constant(constant) => constant.as_str().to_owned(),
-                    _ => panic!("non-flat core rule"),
+                std::array::from_fn(|index| {
+                    match &rule.head.as_atom().expect("single-atom head").terms[index] {
+                        Term::Variable(variable) => binding[variable.as_str()].clone(),
+                        Term::Constant(constant) => constant.as_str().to_owned(),
+                        _ => panic!("non-flat core rule"),
+                    }
                 })
             })
             .collect()

@@ -145,8 +145,11 @@ fn nested_transport_preserves_occurrence_definitions_and_checks_head_safety() {
             value
         );
         let mut unsafe_value = value;
-        unsafe_value.program.rules[0].head.terms[0] =
-            Term::Variable(VariableSymbol::new("missing"));
+        unsafe_value.program.rules[0]
+            .head
+            .as_atom_mut()
+            .expect("single-atom head")
+            .terms[0] = Term::Variable(VariableSymbol::new("missing"));
         assert!(
             serde_json::from_str::<Nested>(&serde_json::to_string(&unsafe_value).unwrap()).is_err()
         );

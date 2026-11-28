@@ -68,15 +68,17 @@ impl Owlrl762RuleId {
             Self::RdfPropertySelfEquivalent => RuleId::Rdfs6,
         };
         let mut rule = base.definition();
+        let head = rule
+            .head
+            .as_atom_mut()
+            .expect("versioned reference clauses have single-atom heads");
         if self == Self::RdfPropertySelfEquivalent {
-            rule.head.terms[1] = Term::Constant(ConstantSymbol::new(
+            head.terms[1] = Term::Constant(ConstantSymbol::new(
                 "http://www.w3.org/2002/07/owl#equivalentProperty",
             ));
         } else {
-            rule.body.push(Literal::Filter(BuiltinFilter::Ne(
-                rule.head.terms[0].clone(),
-                rule.head.terms[2].clone(),
-            )));
+            let filter = BuiltinFilter::Ne(head.terms[0].clone(), head.terms[2].clone());
+            rule.body.push(Literal::Filter(filter));
         }
         Rule::try_new(rule.head, rule.body)
             .expect("versioned reference clauses must be safe Datalog")

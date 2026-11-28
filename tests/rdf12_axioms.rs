@@ -23,11 +23,23 @@ fn expand(value: &str) -> String {
 
 fn triple(rule: Rule) -> [String; 3] {
     assert!(rule.body.is_empty());
-    assert_eq!(rule.head.predicate.as_str(), TRIPLE_RELATION);
-    assert_eq!(rule.head.terms.len(), 3);
-    std::array::from_fn(|index| match &rule.head.terms[index] {
-        Term::Constant(value) => value.as_str().to_owned(),
-        _ => panic!("axioms must be ground"),
+    assert_eq!(
+        rule.head
+            .as_atom()
+            .expect("single-atom head")
+            .predicate
+            .as_str(),
+        TRIPLE_RELATION
+    );
+    assert_eq!(
+        rule.head.as_atom().expect("single-atom head").terms.len(),
+        3
+    );
+    std::array::from_fn(|index| {
+        match &rule.head.as_atom().expect("single-atom head").terms[index] {
+            Term::Constant(value) => value.as_str().to_owned(),
+            _ => panic!("axioms must be ground"),
+        }
     })
 }
 
