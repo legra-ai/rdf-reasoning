@@ -43,9 +43,10 @@ pub fn apply_once(rule: &Rule, snapshot: &[Atom]) -> Result<Vec<Atom>, ProgramVa
     bindings
         .iter()
         .map(|binding| {
-            let head = instantiate_atom(&rule.head, binding);
+            let head = instantiate_atom(rule.head.as_atom().expect("single-atom head"), binding);
             // Checked ground construction must reject excess nesting after substitution.
-            Rule::try_new(head, vec![]).map(|checked| checked.head)
+            Rule::try_new(head, vec![])
+                .map(|checked| checked.head.as_atom().expect("single-atom head").clone())
         })
         .collect()
 }

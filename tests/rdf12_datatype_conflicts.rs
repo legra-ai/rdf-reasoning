@@ -160,8 +160,11 @@ fn checked_nested_rules_preserve_pair_identity_and_reject_unsafe_heads() {
             value
         );
         let mut unsafe_value = value;
-        unsafe_value.program.rules[0].head.terms[0] =
-            Term::Variable(VariableSymbol::new("unbound"));
+        unsafe_value.program.rules[0]
+            .head
+            .as_atom_mut()
+            .expect("single-atom head")
+            .terms[0] = Term::Variable(VariableSymbol::new("unbound"));
         assert!(
             serde_json::from_str::<Nested>(&serde_json::to_string(&unsafe_value).unwrap()).is_err()
         );

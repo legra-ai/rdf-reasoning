@@ -121,7 +121,12 @@ fn nested_transport_checks_safety_and_requires_explicit_triple_term_admission() 
     );
     assert_eq!(serde_json::to_string(&value.id).unwrap(), r#""grdfs14""#);
     let mut unsafe_value = value;
-    let Term::TripleTerm(inner) = &mut unsafe_value.program.rules[0].head.terms[0] else {
+    let Term::TripleTerm(inner) = &mut unsafe_value.program.rules[0]
+        .head
+        .as_atom_mut()
+        .expect("single-atom head")
+        .terms[0]
+    else {
         panic!("canonical quoted head")
     };
     inner.terms[1] = Term::Variable(VariableSymbol::new("unbound_predicate"));

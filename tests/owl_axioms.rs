@@ -13,10 +13,22 @@ fn subjects(id: A, object: &str) -> Vec<String> {
         .into_iter()
         .map(|rule| {
             assert!(rule.body.is_empty());
-            assert_eq!(rule.head.predicate.as_str(), TRIPLE_RELATION);
-            assert_eq!(rule.head.terms.len(), 3);
+            assert_eq!(
+                rule.head
+                    .as_atom()
+                    .expect("single-atom head")
+                    .predicate
+                    .as_str(),
+                TRIPLE_RELATION
+            );
+            assert_eq!(
+                rule.head.as_atom().expect("single-atom head").terms.len(),
+                3
+            );
             let values: Vec<_> = rule
                 .head
+                .as_atom()
+                .expect("single-atom head")
                 .terms
                 .iter()
                 .map(|term| match term {
@@ -187,7 +199,11 @@ fn nested_transport_rechecks_ground_fact_safety() {
             value
         );
         let mut malformed = value;
-        malformed.program.rules[0].head.terms[0] = Term::Variable(VariableSymbol::new("unbound"));
+        malformed.program.rules[0]
+            .head
+            .as_atom_mut()
+            .expect("single-atom head")
+            .terms[0] = Term::Variable(VariableSymbol::new("unbound"));
         assert!(
             serde_json::from_str::<NestedAxiom>(&serde_json::to_string(&malformed).unwrap())
                 .is_err()

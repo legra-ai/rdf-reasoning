@@ -74,8 +74,15 @@ pub fn closure_with_limit(rules: &[Rule], input: &[Fact], fact_limit: usize) -> 
             }
             for binding in bindings {
                 additions.insert(Fact(
-                    rule.head.predicate.as_str().to_owned(),
                     rule.head
+                        .as_atom()
+                        .expect("single-atom head")
+                        .predicate
+                        .as_str()
+                        .to_owned(),
+                    rule.head
+                        .as_atom()
+                        .expect("single-atom head")
                         .terms
                         .iter()
                         .map(|term| match term {

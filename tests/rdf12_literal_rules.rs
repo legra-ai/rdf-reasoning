@@ -124,8 +124,11 @@ fn checked_nested_metadata_rules_and_identifiers_round_trip() {
             value
         );
         let mut unsafe_program = value;
-        unsafe_program.program.rules[0].head.terms[0] =
-            Term::Variable(VariableSymbol::new("unbound"));
+        unsafe_program.program.rules[0]
+            .head
+            .as_atom_mut()
+            .expect("single-atom head")
+            .terms[0] = Term::Variable(VariableSymbol::new("unbound"));
         assert!(
             serde_json::from_str::<Nested>(&serde_json::to_string(&unsafe_program).unwrap())
                 .is_err()
